@@ -20,6 +20,7 @@ public class ActionGame : ModuleRules
 			"ActionGame/Public/Player",
 			"ActionGame/Public/Gameplay",
 			"ActionGame/Public/Props",
+			"ActionGame/Public/Components",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]{  });

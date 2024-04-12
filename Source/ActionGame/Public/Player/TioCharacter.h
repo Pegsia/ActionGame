@@ -8,6 +8,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class UTioInteractionComponent;
 
 UCLASS()
 class ACTIONGAME_API ATioCharacter : public ACharacter
@@ -22,6 +23,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	FName SocketName;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	UAnimMontage* AttackAnim;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	float AttackAnimDelay;
+
+	FTimerHandle TimerHandle_AttackDelay;
+
 public:
 	ATioCharacter();
 
@@ -33,11 +42,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UCameraComponent* CameraComponent;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UTioInteractionComponent* InteractionComponent;
+
 	void MoveForward(float Value);
 
 	void MoveRight(float Value);
 
 	void PrimaryAttack();
+
+	void PrimaryAttack_TimeElapsed();
+
+	void PrimaryInteract();
 
 	virtual void BeginPlay() override;
 

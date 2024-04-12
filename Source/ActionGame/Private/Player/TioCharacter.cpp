@@ -4,6 +4,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/TioInteractionComponent.h"
 
 ATioCharacter::ATioCharacter()
 {
@@ -18,6 +19,10 @@ ATioCharacter::ATioCharacter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
+
+	InteractionComponent = CreateDefaultSubobject<UTioInteractionComponent>("InteractionComponent");
+
+	AttackAnimDelay = 0.16f;
 }
 
 void ATioCharacter::BeginPlay()
@@ -43,7 +48,7 @@ void ATioCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ATioCharacter::PrimaryAttack);
-
+	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ATioCharacter::PrimaryInteract);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATioCharacter::Jump);
 
 }
@@ -70,7 +75,12 @@ void ATioCharacter::MoveRight(float Value)
 
 void ATioCharacter::PrimaryAttack()
 {
+	PlayAnimMontage(AttackAnim);
+	GetWorldTimerManager().SetTimer(TimerHandle_AttackDelay, this, &ATioCharacter::PrimaryAttack_TimeElapsed, AttackAnimDelay);	
+}
 
+void ATioCharacter::PrimaryAttack_TimeElapsed()
+{
 	FVector HandLocation = GetMesh()->GetSocketLocation(SocketName);
 	FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
 
@@ -79,5 +89,10 @@ void ATioCharacter::PrimaryAttack()
 	SpawnParams.Instigator = this;
 
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+}
+
+void ATioCharacter::PrimaryInteract()
+{
+	InteractionComponent->PrimaryInteract();
 }
 
