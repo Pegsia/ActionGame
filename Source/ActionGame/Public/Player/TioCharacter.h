@@ -19,7 +19,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<AActor> ProjectileClass;
-
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<AActor> TelePortClass;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	FName SocketName;
 
@@ -29,7 +32,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	float AttackAnimDelay;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	float TraceDistance;
+
 	FTimerHandle TimerHandle_AttackDelay;
+	FTimerHandle TimerHandle_TeleportDelay;
 
 public:
 	ATioCharacter();
@@ -54,6 +61,10 @@ protected:
 	void PrimaryAttack_TimeElapsed();
 
 	void PrimaryInteract();
+
+	void TelePort();
+
+	void TelePort_TimeElapsed();
 
 	virtual void BeginPlay() override;
 

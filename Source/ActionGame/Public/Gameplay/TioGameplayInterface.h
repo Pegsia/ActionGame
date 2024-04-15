@@ -19,7 +19,7 @@ class ACTIONGAME_API ITioGameplayInterface
 
 public:
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Interact(APawn* Insgitator);
 
 };

@@ -2,6 +2,8 @@
 
 
 #include "TioItemChest.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Components/TimelineComponent.h"
 
 ATioItemChest::ATioItemChest()
 {
@@ -10,6 +12,13 @@ ATioItemChest::ATioItemChest()
 
 	LidMesh = CreateDefaultSubobject<UStaticMeshComponent>("LidMesh");
 	LidMesh->SetupAttachment(GetRootComponent());
+
+	Gold = CreateDefaultSubobject<UStaticMeshComponent>("GoldMesh");
+	Gold->SetupAttachment(GetRootComponent());
+
+	Effect = CreateDefaultSubobject<UParticleSystemComponent>("Effect");
+	Effect->SetupAttachment(Gold);
+	Effect->bAutoActivate = false;
 
 	TargetPitch = 110.f;
 }

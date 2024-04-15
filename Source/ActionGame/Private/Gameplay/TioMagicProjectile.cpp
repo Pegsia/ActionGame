@@ -5,27 +5,16 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 
 ATioMagicProjectile::ATioMagicProjectile()
 {
-	SphereComponent = CreateDefaultSubobject<USphereComponent>("SpereComponent");
-	SphereComponent->SetCollisionProfileName("Projectile");
-	SetRootComponent(SphereComponent);
-
-	EffectComponent = CreateDefaultSubobject<UParticleSystemComponent>("EffectComponent");
-	EffectComponent->SetupAttachment(GetRootComponent());
-
-	ProMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("ProMovementComponent");
-	ProMovementComponent->bRotationFollowsVelocity = true;
-	ProMovementComponent->bInitialVelocityInLocalSpace = true;
-	ProMovementComponent->InitialSpeed = 5000;
-	ProMovementComponent->ProjectileGravityScale = 0.0f;
+	
 }
 
 void ATioMagicProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
-
 

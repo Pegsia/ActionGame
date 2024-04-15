@@ -3,6 +3,7 @@
 
 #include "Props/TioExplosiveBarrel.h"
 #include "PhysicsEngine/RadialForceComponent.h"
+#include "DrawDebugHelpers.h"
 
 ATioExplosiveBarrel::ATioExplosiveBarrel()
 {
@@ -35,5 +36,8 @@ void ATioExplosiveBarrel::OnActorHit(UPrimitiveComponent* HitComponent, AActor* 
 	RForceComponent->FireImpulse();
 
 	UE_LOG(LogTemp, Log, TEXT("%s hit the explosivebarrel"), *GetNameSafe(OtherActor));
+
+	FString CombinedString = FString::Printf(TEXT("Hit at location: %s"), *Hit.ImpactPoint.ToString());
+	DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Blue, 2.0f, true);
 }
 
