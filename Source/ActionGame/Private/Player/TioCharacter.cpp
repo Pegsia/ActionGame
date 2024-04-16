@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/TioInteractionComponent.h"
 #include "DrawDebugHelpers.h"
+#include "TioAttributeComponent.h"
 
 ATioCharacter::ATioCharacter()
 {
@@ -21,7 +22,9 @@ ATioCharacter::ATioCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
 
+	// ActorComponent
 	InteractionComponent = CreateDefaultSubobject<UTioInteractionComponent>("InteractionComponent");
+	AttributeComponent = CreateDefaultSubobject<UTioAttributeComponent>("AttributeComponent");
 
 	AttackAnimDelay = 0.16f;
 	TraceDistance = 1000.f;
@@ -53,6 +56,7 @@ void ATioCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ATioCharacter::PrimaryInteract);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATioCharacter::Jump);
 	PlayerInputComponent->BindAction("TelePort", IE_Pressed, this, &ATioCharacter::TelePort);
+	PlayerInputComponent->BindAction("BlackHole", IE_Pressed, this, &ATioCharacter::BlackHole);
 }
 
 void ATioCharacter::MoveForward(float Value)
@@ -175,5 +179,53 @@ void ATioCharacter::TelePort_TimeElapsed()
 	SpawnParams.Instigator = this;
 
 	GetWorld()->SpawnActor<AActor>(TelePortClass, SpawnTM, SpawnParams);
+}
+
+void ATioCharacter::BlackHole()
+{
+	PlayAnimMontage(AttackAnim);
+	GetWorldTimerManager().SetTimer(TimerHandle_BlackHoleDelay, this, &ATioCharacter::BlackHole_TimeElapsed, AttackAnimDelay);
+}
+
+void ATioCharacter::BlackHole_TimeElapsed()
+{
+	FHitResult Hit;
+	FVector TraceStart = CameraComponent->GetComponentLocation() + GetViewRotation().Vector() * 400.f;
+	FVector TraceEnd = TraceStart + GetControlRotation().Vector() * TraceDistance; //距离过小还是会偏移，因为没有hit结果
+
+	FCollisionObjectQueryParams HitObjectQueryParams;
+	HitObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	HitObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+	HitObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
+
+	FCollisionShape Shape;
+	Shape.SetSphere(20.f);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	bool bBlockingHit = GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, HitObjectQueryParams, Shape, QueryParams);
+
+	if (bBlockingHit)
+	{
+		TraceEnd = Hit.ImpactPoint;
+	}
+	/*DrawDebugSphere(GetWorld(), TraceStart, 30.f, 16, FColor::Yellow, false, 10.f, 0, 5.f);
+	DrawDebugSphere(GetWorld(), TraceEnd, 30.f, 16, FColor::Blue, false, 10.f, 0, 5.f);*/
+
+	// 生成
+	FVector HandLocation = GetMesh()->GetSocketLocation(SocketName);
+	// 生成起点和LineTrace起点不同
+	FRotator ProRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
+	FTransform SpawnTM = FTransform(ProRotation, HandLocation);
+
+	//DrawDebugSphere(GetWorld(), HandLocation, 30.f, 16, FColor::Red, false, 10.f, 0, 5.f);
+	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 10.f, 0, 5.f);
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
+
+	GetWorld()->SpawnActor<AActor>(BlackHoleClass, SpawnTM, SpawnParams);
 }
 

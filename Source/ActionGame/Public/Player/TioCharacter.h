@@ -9,6 +9,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UTioInteractionComponent;
+class UTioAttributeComponent;
 
 UCLASS()
 class ACTIONGAME_API ATioCharacter : public ACharacter
@@ -22,6 +23,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<AActor> TelePortClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<AActor> BlackHoleClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	FName SocketName;
@@ -37,6 +41,7 @@ protected:
 
 	FTimerHandle TimerHandle_AttackDelay;
 	FTimerHandle TimerHandle_TeleportDelay;
+	FTimerHandle TimerHandle_BlackHoleDelay;
 
 public:
 	ATioCharacter();
@@ -52,6 +57,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UTioInteractionComponent* InteractionComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UTioAttributeComponent* AttributeComponent;
+
 	void MoveForward(float Value);
 
 	void MoveRight(float Value);
@@ -65,6 +73,10 @@ protected:
 	void TelePort();
 
 	void TelePort_TimeElapsed();
+
+	void BlackHole();
+
+	void BlackHole_TimeElapsed();
 
 	virtual void BeginPlay() override;
 
