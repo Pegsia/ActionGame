@@ -4,6 +4,7 @@
 #include "Props/TioExplosiveBarrel.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "DrawDebugHelpers.h"
+#include "TioAttributeComponent.h"
 
 ATioExplosiveBarrel::ATioExplosiveBarrel()
 {
@@ -39,5 +40,17 @@ void ATioExplosiveBarrel::OnActorHit(UPrimitiveComponent* HitComponent, AActor* 
 
 	FString CombinedString = FString::Printf(TEXT("Hit at location: %s"), *Hit.ImpactPoint.ToString());
 	DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Blue, 2.0f, true);
+
+	if (OtherActor)
+	{
+		UTioAttributeComponent* AttributeComp = Cast<UTioAttributeComponent>(OtherActor->GetComponentByClass(UTioAttributeComponent::StaticClass()));
+		if (AttributeComp)
+		{
+			AttributeComp->ApplyHealthChange(-50.f);
+		}
+	}
+
+	// 会一瞬间击中两次, 所以炸完销毁
+	Destroy();
 }
 

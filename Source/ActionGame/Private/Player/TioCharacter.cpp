@@ -36,6 +36,12 @@ void ATioCharacter::BeginPlay()
 	
 }
 
+void ATioCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	AttributeComponent->OnHealthChange.AddDynamic(this, &ATioCharacter::OnHealthChange);
+}
+
 void ATioCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -227,5 +233,10 @@ void ATioCharacter::BlackHole_TimeElapsed()
 	SpawnParams.Instigator = this;
 
 	GetWorld()->SpawnActor<AActor>(BlackHoleClass, SpawnTM, SpawnParams);
+}
+
+void ATioCharacter::OnHealthChange(AActor* InstigatorActor, UTioAttributeComponent* AttributeComp, float NewHealth, float Delta)
+{
+	
 }
 

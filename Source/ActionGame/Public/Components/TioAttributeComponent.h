@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "TioAttributeComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnAttributeChange, AActor*, InstigatorActor, UTioAttributeComponent*, AttributeComp, float, NewHealth, float, Delta);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ACTIONGAME_API UTioAttributeComponent : public UActorComponent
@@ -15,6 +16,9 @@ class ACTIONGAME_API UTioAttributeComponent : public UActorComponent
 public:	
 	UTioAttributeComponent();
 
+	UPROPERTY(BlueprintAssignable, Category = "Health")
+	FOnAttributeChange OnHealthChange;
+
 	UFUNCTION(BlueprintCallable)
 	bool ApplyHealthChange(float Delta);
 
@@ -22,6 +26,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
 	float Health;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Health")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
 	float HealthMax;
 };
