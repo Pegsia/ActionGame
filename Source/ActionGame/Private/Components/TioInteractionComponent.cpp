@@ -60,3 +60,4 @@ void UTioInteractionComponent::PrimaryInteract()
 	DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, HitColor, false, 2.0f, 0, 2.0f);
 }
 
+

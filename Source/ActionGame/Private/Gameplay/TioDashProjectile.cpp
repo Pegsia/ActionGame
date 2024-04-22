@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Sound/SoundCue.h"
 
 ATioDashProjectile::ATioDashProjectile()
 {
@@ -24,6 +25,7 @@ void ATioDashProjectile::Explode_Implementation()
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Detonate);
 
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactVFX, GetActorLocation(), GetActorRotation());
+	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
 
 	EffectComponent->DeactivateSystem();
 

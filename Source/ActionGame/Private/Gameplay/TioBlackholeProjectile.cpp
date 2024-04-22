@@ -26,7 +26,7 @@ void ATioBlackholeProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	// 谁也没撞到就10秒后自己消亡
-	SetLifeSpan(5.f);
+	SetLifeSpan(4.8f);
 }
 
 void ATioBlackholeProjectile::PostInitializeComponents()

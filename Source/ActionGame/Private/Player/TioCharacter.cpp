@@ -93,45 +93,7 @@ void ATioCharacter::PrimaryAttack()
 
 void ATioCharacter::PrimaryAttack_TimeElapsed()
 {
-	// 从相机位置进行LineTrace
-	FHitResult Hit; 
-	FVector TraceStart = CameraComponent->GetComponentLocation() + GetViewRotation().Vector() * 400.f;
-	FVector TraceEnd = TraceStart + GetControlRotation().Vector() * TraceDistance; //距离过小还是会偏移，因为没有hit结果
-
-	FCollisionObjectQueryParams HitObjectQueryParams;
-	HitObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-	HitObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-	HitObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-
-	FCollisionShape Shape;
-	Shape.SetSphere(20.f);
-
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-
-	bool bBlockingHit = GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, HitObjectQueryParams, Shape, QueryParams);
-
-	if (bBlockingHit)
-	{
-		TraceEnd = Hit.ImpactPoint;
-	}
-	/*DrawDebugSphere(GetWorld(), TraceStart, 30.f, 16, FColor::Yellow, false, 10.f, 0, 5.f);
-	DrawDebugSphere(GetWorld(), TraceEnd, 30.f, 16, FColor::Blue, false, 10.f, 0, 5.f);*/
-
-	// 生成
-	FVector HandLocation = GetMesh()->GetSocketLocation(SocketName);
-	// 生成起点和LineTrace起点不同
-	FRotator ProRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
-	FTransform SpawnTM = FTransform(ProRotation, HandLocation);
-
-	//DrawDebugSphere(GetWorld(), HandLocation, 30.f, 16, FColor::Red, false, 10.f, 0, 5.f);
-	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 10.f, 0, 5.f);
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
-
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+	SpawnProjectile(ProjectileClass);
 }
 
 void ATioCharacter::PrimaryInteract()
@@ -147,44 +109,7 @@ void ATioCharacter::TelePort()
 
 void ATioCharacter::TelePort_TimeElapsed()
 {
-	FHitResult Hit;
-	FVector TraceStart = CameraComponent->GetComponentLocation() + GetViewRotation().Vector() * 400.f;
-	FVector TraceEnd = TraceStart + GetControlRotation().Vector() * TraceDistance; //距离过小还是会偏移，因为没有hit结果
-
-	FCollisionObjectQueryParams HitObjectQueryParams;
-	HitObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-	HitObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-	HitObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-
-	FCollisionShape Shape;
-	Shape.SetSphere(20.f);
-
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-
-	bool bBlockingHit = GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, HitObjectQueryParams, Shape, QueryParams);
-
-	if (bBlockingHit)
-	{
-		TraceEnd = Hit.ImpactPoint;
-	}
-	/*DrawDebugSphere(GetWorld(), TraceStart, 30.f, 16, FColor::Yellow, false, 10.f, 0, 5.f);
-	DrawDebugSphere(GetWorld(), TraceEnd, 30.f, 16, FColor::Blue, false, 10.f, 0, 5.f);*/
-
-	// 生成
-	FVector HandLocation = GetMesh()->GetSocketLocation(SocketName);
-	// 生成起点和LineTrace起点不同
-	FRotator ProRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
-	FTransform SpawnTM = FTransform(ProRotation, HandLocation);
-
-	//DrawDebugSphere(GetWorld(), HandLocation, 30.f, 16, FColor::Red, false, 10.f, 0, 5.f);
-	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 10.f, 0, 5.f);
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
-
-	GetWorld()->SpawnActor<AActor>(TelePortClass, SpawnTM, SpawnParams);
+	SpawnProjectile(TelePortClass);
 }
 
 void ATioCharacter::BlackHole()
@@ -195,48 +120,69 @@ void ATioCharacter::BlackHole()
 
 void ATioCharacter::BlackHole_TimeElapsed()
 {
-	FHitResult Hit;
-	FVector TraceStart = CameraComponent->GetComponentLocation() + GetViewRotation().Vector() * 400.f;
-	FVector TraceEnd = TraceStart + GetControlRotation().Vector() * TraceDistance; //距离过小还是会偏移，因为没有hit结果
+	SpawnProjectile(BlackHoleClass);
+}
 
-	FCollisionObjectQueryParams HitObjectQueryParams;
-	HitObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-	HitObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-	HitObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-
-	FCollisionShape Shape;
-	Shape.SetSphere(20.f);
-
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-
-	bool bBlockingHit = GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, HitObjectQueryParams, Shape, QueryParams);
-
-	if (bBlockingHit)
+void ATioCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
+{
+	if (ensureAlways(ClassToSpawn))
 	{
-		TraceEnd = Hit.ImpactPoint;
-	}
-	/*DrawDebugSphere(GetWorld(), TraceStart, 30.f, 16, FColor::Yellow, false, 10.f, 0, 5.f);
-	DrawDebugSphere(GetWorld(), TraceEnd, 30.f, 16, FColor::Blue, false, 10.f, 0, 5.f);*/
+		FHitResult Hit;
+		FVector TraceStart = CameraComponent->GetComponentLocation() + GetViewRotation().Vector() * 400.f;
+		FVector TraceEnd = TraceStart + GetControlRotation().Vector() * TraceDistance; //距离过小还是会偏移，因为没有hit结果
 
-	// 生成
-	FVector HandLocation = GetMesh()->GetSocketLocation(SocketName);
-	// 生成起点和LineTrace起点不同
-	FRotator ProRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
-	FTransform SpawnTM = FTransform(ProRotation, HandLocation);
+		FCollisionObjectQueryParams HitObjectQueryParams;
+		HitObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+		HitObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		HitObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
 
-	//DrawDebugSphere(GetWorld(), HandLocation, 30.f, 16, FColor::Red, false, 10.f, 0, 5.f);
-	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 10.f, 0, 5.f);
+		FCollisionShape Shape;
+		Shape.SetSphere(20.f);
 
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
 
-	GetWorld()->SpawnActor<AActor>(BlackHoleClass, SpawnTM, SpawnParams);
+		bool bBlockingHit = GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, HitObjectQueryParams, Shape, QueryParams);
+
+		if (bBlockingHit)
+		{
+			TraceEnd = Hit.ImpactPoint;
+		}
+		/*DrawDebugSphere(GetWorld(), TraceStart, 30.f, 16, FColor::Yellow, false, 10.f, 0, 5.f);
+		DrawDebugSphere(GetWorld(), TraceEnd, 30.f, 16, FColor::Blue, false, 10.f, 0, 5.f);*/
+
+		// 生成
+		FVector HandLocation = GetMesh()->GetSocketLocation(SocketName);
+		// 生成起点和LineTrace起点不同
+		FRotator ProRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
+		FTransform SpawnTM = FTransform(ProRotation, HandLocation);
+
+		// TODO: SetRotation
+		//SetActorRotation(ProRotation);
+		
+		//DrawDebugSphere(GetWorld(), HandLocation, 30.f, 16, FColor::Red, false, 10.f, 0, 5.f);
+		//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 10.f, 0, 5.f);
+		
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator = this;
+
+		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTM, SpawnParams);
+	}	
 }
 
 void ATioCharacter::OnHealthChange(AActor* InstigatorActor, UTioAttributeComponent* AttributeComp, float NewHealth, float Delta)
 {
-	
+	if (Delta < 0.f)
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
+		
+	}
+
+	if (NewHealth <= 0.f && Delta < 0.f)
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		DisableInput(PC);
+	}
 }
 

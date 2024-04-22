@@ -11,7 +11,7 @@
 
 ATioMagicProjectile::ATioMagicProjectile()
 {
-	Damage = -20.f;
+	DamageAmount = 20.f;
 }
 
 void ATioMagicProjectile::BeginPlay()
@@ -32,7 +32,7 @@ void ATioMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedComp
 		UTioAttributeComponent* AttributeComp = Cast<UTioAttributeComponent>(OtherActor->GetComponentByClass(UTioAttributeComponent::StaticClass()));
 		if (AttributeComp)
 		{
-			AttributeComp->ApplyHealthChange(Damage);
+			AttributeComp->ApplyHealthChange(-DamageAmount);
 		}
 	}
 	Explode();

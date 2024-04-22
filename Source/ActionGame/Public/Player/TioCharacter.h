@@ -78,6 +78,8 @@ protected:
 
 	void BlackHole_TimeElapsed();
 
+	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
+
 	virtual void BeginPlay() override;
 
 	virtual void PostInitializeComponents() override;

@@ -9,8 +9,9 @@
 class USphereComponent;
 class UProjectileMovementComponent;
 class UParticleSystemComponent;
+class USoundCue;
 
-UCLASS()
+UCLASS(ABSTRACT) //Keep this out of certain dropdown windows like SpawnActor in Unreal Editor 
 class ACTIONGAME_API ATioProjectileBase : public AActor
 {
 	GENERATED_BODY()
@@ -30,6 +31,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Comp")
 	UParticleSystem* ImpactVFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	USoundCue* ImpactSound;
 
 	UFUNCTION()
 	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

@@ -10,9 +10,15 @@ UTioAttributeComponent::UTioAttributeComponent()
 
 bool UTioAttributeComponent::ApplyHealthChange(float Delta)
 {
-	Health += Delta;
+	float OldHealth = Health;
+	Health = FMath::Clamp(OldHealth + Delta, 0.f, HealthMax);
 	
-	OnHealthChange.Broadcast(nullptr, this, Health, Delta);
+	OnHealthChange.Broadcast(nullptr, this, Health, Health - OldHealth);
 
 	return true;
+}
+
+bool UTioAttributeComponent::IsAlive() const
+{
+	return Health > 0.f;
 }
