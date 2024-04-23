@@ -34,6 +34,9 @@ protected:
 	UAnimMontage* AttackAnim;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	UParticleSystem* CastingEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	float AttackAnimDelay;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
@@ -63,6 +66,8 @@ protected:
 	void MoveForward(float Value);
 
 	void MoveRight(float Value);
+
+	void StartAttackEffects();
 
 	void PrimaryAttack();
 

@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "TioAICharacter.generated.h"
 
+class UPawnSensingComponent;
+
 UCLASS()
 class ACTIONGAME_API ATioAICharacter : public ACharacter
 {
@@ -15,10 +17,12 @@ public:
 	ATioAICharacter();
 
 protected:
-	virtual void BeginPlay() override;
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPawnSensingComponent* PawnSensingComponent;
 
-public:	
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION()
+	void OnSeePawn(APawn* Pawn);
 
+	virtual void PostInitializeComponents() override;
 
 };

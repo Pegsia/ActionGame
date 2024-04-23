@@ -6,12 +6,10 @@
 void ATioAIController::BeginPlay()
 {
 	Super::BeginPlay();
-	RunBehaviorTree(BehaviorTree);
 
-	APawn* MyPawn = UGameplayStatics::GetPlayerPawn(this, 0);
-	if (MyPawn)
+	if (ensureMsgf(BehaviorTree, TEXT("BehaviorTree is nullptr, assign in your AIController")))
 	{
-		GetBlackboardComponent()->SetValueAsObject("TargetActor", MyPawn);
+		RunBehaviorTree(BehaviorTree);
 	}
 
 }

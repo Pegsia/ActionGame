@@ -13,7 +13,7 @@ void UTioBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp,
 	UBlackboardComponent* BlackBoardComp = OwnerComp.GetBlackboardComponent();
 	if (ensure(BlackBoardComp))
 	{
-		AActor* TargetActor = Cast<AActor>(BlackBoardComp->GetValueAsObject(TargetActorKey.SelectedKeyName));
+		AActor* TargetActor = Cast<AActor>(BlackBoardComp->GetValueAsObject(KSTargetActor.SelectedKeyName));
 		if (TargetActor)
 		{
 			AAIController* AIController = OwnerComp.GetAIOwner();
@@ -23,13 +23,13 @@ void UTioBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp,
 				if (AIPawn)
 				{
 					float AIDistanceToTarget = FVector::Distance(TargetActor->GetActorLocation(), AIPawn->GetActorLocation());
-					bool bWithinAttackRange = AIDistanceToTarget < 2000.f;
+					bool bWithinAttackRange = AIDistanceToTarget < AttackDistance;
 					bool bHasLOS = false;
 					if (bWithinAttackRange)
 					{
 						bHasLOS = AIController->LineOfSightTo(TargetActor);
 					}
-					BlackBoardComp->SetValueAsBool(WithinAttackRangeKey.SelectedKeyName, (bWithinAttackRange && bHasLOS));
+					BlackBoardComp->SetValueAsBool(KSWithinAttackRange.SelectedKeyName, (bWithinAttackRange && bHasLOS));
 				}
 			}
 		}

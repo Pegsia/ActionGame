@@ -26,6 +26,7 @@ public class ActionGame : ModuleRules
 			"ActionGame/Public/AI",
 			"ActionGame/Public/AI/Character",
 			"ActionGame/Public/AI/Service",
+			"ActionGame/Public/AI/Task",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]{  });

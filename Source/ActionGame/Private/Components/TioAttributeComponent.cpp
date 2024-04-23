@@ -13,12 +13,18 @@ bool UTioAttributeComponent::ApplyHealthChange(float Delta)
 	float OldHealth = Health;
 	Health = FMath::Clamp(OldHealth + Delta, 0.f, HealthMax);
 	
-	OnHealthChange.Broadcast(nullptr, this, Health, Health - OldHealth);
+	float ActualDelta = Health - OldHealth;
+	OnHealthChange.Broadcast(nullptr, this, Health, ActualDelta);
 
-	return true;
+	return ActualDelta != 0;
 }
 
 bool UTioAttributeComponent::IsAlive() const
 {
 	return Health > 0.f;
+}
+
+bool UTioAttributeComponent::IsFullHealth() const
+{
+	return FMath::IsNearlyEqual(Health, HealthMax);
 }

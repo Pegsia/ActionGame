@@ -7,6 +7,7 @@
 #include "Components/TioInteractionComponent.h"
 #include "DrawDebugHelpers.h"
 #include "TioAttributeComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ATioCharacter::ATioCharacter()
 {
@@ -85,9 +86,15 @@ void ATioCharacter::MoveRight(float Value)
 	AddMovementInput(RightVector, Value);
 }
 
-void ATioCharacter::PrimaryAttack()
+void ATioCharacter::StartAttackEffects()
 {
 	PlayAnimMontage(AttackAnim);
+	UGameplayStatics::SpawnEmitterAttached(CastingEffect, GetMesh(), SocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
+}
+
+void ATioCharacter::PrimaryAttack()
+{
+	StartAttackEffects();
 	GetWorldTimerManager().SetTimer(TimerHandle_AttackDelay, this, &ATioCharacter::PrimaryAttack_TimeElapsed, AttackAnimDelay);	
 }
 
@@ -103,7 +110,7 @@ void ATioCharacter::PrimaryInteract()
 
 void ATioCharacter::TelePort()
 {
-	PlayAnimMontage(AttackAnim);
+	StartAttackEffects();
 	GetWorldTimerManager().SetTimer(TimerHandle_TeleportDelay, this, &ATioCharacter::TelePort_TimeElapsed, AttackAnimDelay);
 }
 
@@ -114,7 +121,7 @@ void ATioCharacter::TelePort_TimeElapsed()
 
 void ATioCharacter::BlackHole()
 {
-	PlayAnimMontage(AttackAnim);
+	StartAttackEffects();
 	GetWorldTimerManager().SetTimer(TimerHandle_BlackHoleDelay, this, &ATioCharacter::BlackHole_TimeElapsed, AttackAnimDelay);
 }
 

@@ -15,10 +15,13 @@ class ACTIONGAME_API UTioBTService_CheckAttackRange : public UBTService
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "AI")
-	FBlackboardKeySelector TargetActorKey;
+	FBlackboardKeySelector KSTargetActor;
 
 	UPROPERTY(EditAnywhere, Category = "AI")
-	FBlackboardKeySelector WithinAttackRangeKey;
+	FBlackboardKeySelector KSWithinAttackRange;
+
+	UPROPERTY(EditAnywhere, Category = "AI")
+	float AttackDistance;
 
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
