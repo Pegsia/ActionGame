@@ -8,13 +8,13 @@ UTioAttributeComponent::UTioAttributeComponent()
 	Health = HealthMax;
 }
 
-bool UTioAttributeComponent::ApplyHealthChange(float Delta)
+bool UTioAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
 	float OldHealth = Health;
 	Health = FMath::Clamp(OldHealth + Delta, 0.f, HealthMax);
 	
 	float ActualDelta = Health - OldHealth;
-	OnHealthChange.Broadcast(nullptr, this, Health, ActualDelta);
+	OnHealthChange.Broadcast(InstigatorActor, this, Health, ActualDelta);
 
 	return ActualDelta != 0;
 }

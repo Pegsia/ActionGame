@@ -40,7 +40,7 @@ void ATioProjectileBase::PostInitializeComponents()
 
 void ATioProjectileBase::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 30.f, 16, FColor::Red, false, 10.f, 0, 5.f);
+	//DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 30.f, 16, FColor::Red, false, 10.f, 0, 5.f);
 	Explode();
 }
 

@@ -46,7 +46,7 @@ void ATioExplosiveBarrel::OnActorHit(UPrimitiveComponent* HitComponent, AActor* 
 		UTioAttributeComponent* AttributeComp = Cast<UTioAttributeComponent>(OtherActor->GetComponentByClass(UTioAttributeComponent::StaticClass()));
 		if (AttributeComp)
 		{
-			AttributeComp->ApplyHealthChange(-50.f);
+			AttributeComp->ApplyHealthChange(this, -50.f);
 		}
 	}
 

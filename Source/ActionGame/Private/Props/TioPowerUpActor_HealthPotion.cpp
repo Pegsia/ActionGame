@@ -2,8 +2,8 @@
 
 
 #include "TioPowerUpActor_HealthPotion.h"
-
 #include "TioAttributeComponent.h"
+#include "System/TioSystemStatic.h"
 
 ATioPowerUpActor_HealthPotion::ATioPowerUpActor_HealthPotion()
 {
@@ -17,10 +17,10 @@ void ATioPowerUpActor_HealthPotion::Interact_Implementation(APawn* InsgitatorPaw
 		return;
 	}
 
-	UTioAttributeComponent* AttributeComp = Cast<UTioAttributeComponent>(InsgitatorPawn->GetComponentByClass(UTioAttributeComponent::StaticClass()));
+	UTioAttributeComponent* AttributeComp = UTioSystemStatic::GetAttributeComponent(InsgitatorPawn);
 	if (AttributeComp && !AttributeComp->IsFullHealth())
 	{
-		if (AttributeComp->ApplyHealthChange(HealAmount))
+		if (AttributeComp->ApplyHealthChange(this, HealAmount))
 		{
 			HideAndCoolDownPowerUp();
 		}

@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "TioAttributeComponent.h"
+#include "System/TioSystemStatic.h"
 
 ATioMagicProjectile::ATioMagicProjectile()
 {
@@ -29,10 +30,10 @@ void ATioMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedComp
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		UTioAttributeComponent* AttributeComp = Cast<UTioAttributeComponent>(OtherActor->GetComponentByClass(UTioAttributeComponent::StaticClass()));
+		UTioAttributeComponent* AttributeComp = UTioSystemStatic::GetAttributeComponent(OtherActor);
 		if (AttributeComp)
 		{
-			AttributeComp->ApplyHealthChange(-DamageAmount);
+			AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
 		}
 	}
 	Explode();
