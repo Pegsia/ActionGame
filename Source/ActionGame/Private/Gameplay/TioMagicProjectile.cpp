@@ -18,6 +18,9 @@ ATioMagicProjectile::ATioMagicProjectile()
 void ATioMagicProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// 防止没有撞击，也没有overlap造成不会销毁
+	SetLifeSpan(4.f);
 }
 
 void ATioMagicProjectile::PostInitializeComponents()
@@ -33,9 +36,12 @@ void ATioMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedComp
 		UTioAttributeComponent* AttributeComp = UTioSystemStatic::GetAttributeComponent(OtherActor);
 		if (AttributeComp)
 		{
-			AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
-		}
+			if (AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount))
+			{
+				// 只有造成伤害才会爆炸
+				Explode();
+			}
+		}	
 	}
-	Explode();
 }
 

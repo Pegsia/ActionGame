@@ -29,6 +29,8 @@ ATioCharacter::ATioCharacter()
 
 	AttackAnimDelay = 0.16f;
 	TraceDistance = 1000.f;
+
+	ParamName_TimeToHit = "TimeToHit";
 }
 
 void ATioCharacter::BeginPlay()
@@ -182,8 +184,7 @@ void ATioCharacter::OnHealthChange(AActor* InstigatorActor, UTioAttributeCompone
 {
 	if (Delta < 0.f)
 	{
-		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
-		
+		GetMesh()->SetScalarParameterValueOnMaterials(ParamName_TimeToHit, GetWorld()->TimeSeconds);
 	}
 
 	if (NewHealth <= 0.f && Delta < 0.f)
@@ -191,5 +192,10 @@ void ATioCharacter::OnHealthChange(AActor* InstigatorActor, UTioAttributeCompone
 		APlayerController* PC = Cast<APlayerController>(GetController());
 		DisableInput(PC);
 	}
+}
+
+void ATioCharacter::HealSelf(float Amount /*= 100.f*/)
+{
+	AttributeComponent->ApplyHealthChange(this, Amount);
 }
 

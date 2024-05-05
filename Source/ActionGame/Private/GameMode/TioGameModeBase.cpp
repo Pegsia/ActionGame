@@ -20,6 +20,20 @@ void ATioGameModeBase::StartPlay()
 	GetWorldTimerManager().SetTimer(TimerHandle_SpwanBot, this, &ATioGameModeBase::SpawnBotElapsed, SpawnBotInterval, true);
 }
 
+void ATioGameModeBase::KillAllBots()
+{
+	for (TActorIterator<ATioAICharacter> It(GetWorld()); It; ++It)
+	{
+		ATioAICharacter* AICharacter = *It;
+
+		if (AICharacter->IsAlive())
+		{
+			AICharacter->ApplyHealth(this);
+		}
+	}
+}
+
+
 void ATioGameModeBase::SpawnBotElapsed()
 {
 	int32 NrOfLiveBots = 0;

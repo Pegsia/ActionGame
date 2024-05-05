@@ -8,6 +8,8 @@
 
 class UPawnSensingComponent;
 class UTioAttributeComponent;
+class UTioWorldUserWidget;
+class UUserWidget;
 
 UCLASS()
 class ACTIONGAME_API ATioAICharacter : public ACharacter
@@ -15,6 +17,9 @@ class ACTIONGAME_API ATioAICharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
+
+	UFUNCTION(BlueprintCallable)
+	bool ApplyHealth(AActor* InstigatorActor, float Amount = 100.f);
 
 	bool IsAlive() const;
 
@@ -25,11 +30,19 @@ public:
 
 protected:
 
+	UTioWorldUserWidget* HealthWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> HealthWidgetClass;
+
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UTioAttributeComponent* AttributeComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Projectile")
+	FName ParamName_TimeToHit;
 
 	UFUNCTION()
 	void OnSeePawn(APawn* Pawn);

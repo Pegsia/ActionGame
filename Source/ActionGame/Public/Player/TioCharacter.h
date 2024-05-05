@@ -42,6 +42,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	float TraceDistance;
 
+	UPROPERTY(VisibleAnywhere, Category = "Projectile")
+	FName ParamName_TimeToHit;
+
 	FTimerHandle TimerHandle_AttackDelay;
 	FTimerHandle TimerHandle_TeleportDelay;
 	FTimerHandle TimerHandle_BlackHoleDelay;
@@ -90,6 +93,9 @@ protected:
 	virtual void PostInitializeComponents() override;
 
 public:	
+
+	UFUNCTION(Exec)
+	void HealSelf(float Amount = 100.f);
 
 	UFUNCTION()
 	void OnHealthChange(AActor* InstigatorActor, UTioAttributeComponent* AttributeComp, float NewHealth, float Delta);

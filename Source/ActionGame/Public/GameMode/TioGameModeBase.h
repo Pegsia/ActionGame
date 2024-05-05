@@ -37,6 +37,10 @@ protected:
 	void OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
 public:
+
+	UFUNCTION(Exec)
+	void KillAllBots();
+
 	ATioGameModeBase();
 
 	virtual void StartPlay() override;

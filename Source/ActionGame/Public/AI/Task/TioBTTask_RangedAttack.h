@@ -19,10 +19,16 @@ protected:
 	TSubclassOf<AActor> ProjectileClass;
 
 	UPROPERTY(EditAnywhere, Category = "AI")
+	float MaxBulletSpread;
+
+	UPROPERTY(EditAnywhere, Category = "AI")
 	FBlackboardKeySelector KSTargetActor;
 
 	UPROPERTY(EditAnywhere, Category = "AI")
 	FName HandSocket;
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+public:
+	UTioBTTask_RangedAttack();
 };

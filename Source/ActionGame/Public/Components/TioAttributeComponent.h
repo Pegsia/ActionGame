@@ -14,10 +14,11 @@ class ACTIONGAME_API UTioAttributeComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	UTioAttributeComponent();
-
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnAttributeChange OnHealthChange;
+
+	UFUNCTION(BlueprintCallable)
+	bool Kill(AActor* InstigatorActor);
 
 	UFUNCTION(BlueprintCallable)
 	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
@@ -27,6 +28,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool IsFullHealth() const;
+
+	UTioAttributeComponent();
 
 protected: 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")

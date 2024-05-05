@@ -8,6 +8,8 @@
 #include "DrawDebugHelpers.h"
 #include "TioAttributeComponent.h"
 #include "BrainComponent.h"
+#include "Blueprint/UserWidget.h"
+#include "Widget/TioWorldUserWidget.h"
 
 ATioAICharacter::ATioAICharacter()
 {
@@ -15,6 +17,8 @@ ATioAICharacter::ATioAICharacter()
     AttributeComponent = CreateDefaultSubobject<UTioAttributeComponent>("AttributeComponent");
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+    ParamName_TimeToHit = "TimeToHit";
 }
 
 void ATioAICharacter::PostInitializeComponents()
@@ -39,6 +43,18 @@ void ATioAICharacter::OnHealthChange(AActor* InstigatorActor, UTioAttributeCompo
             SetTargetActor(InstigatorActor);
         }
 
+        if (HealthWidget == nullptr)
+        {
+            HealthWidget = CreateWidget<UTioWorldUserWidget>(GetWorld(), HealthWidgetClass);
+            if (HealthWidget)
+            {
+                HealthWidget->AttachActor = this;
+                HealthWidget->AddToViewport();
+            }
+        }
+
+        GetMesh()->SetScalarParameterValueOnMaterials(ParamName_TimeToHit, GetWorld()->TimeSeconds);
+
         if (NewHealth <= 0.f)
         {
             AAIController* AIC = Cast<AAIController>(GetController());
@@ -62,6 +78,11 @@ void ATioAICharacter::SetTargetActor(AActor* TargetActor)
 	{
         AIC->GetBlackboardComponent()->SetValueAsObject("TargetActor", TargetActor);
 	}
+}
+
+bool ATioAICharacter::ApplyHealth(AActor* InstigatorActor, float Amount /*= 100.f*/)
+{
+    return AttributeComponent->ApplyHealthChange(InstigatorActor, Amount);
 }
 
 bool ATioAICharacter::IsAlive() const

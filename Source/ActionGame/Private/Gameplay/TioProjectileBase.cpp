@@ -29,7 +29,6 @@ void ATioProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
 }
 
 void ATioProjectileBase::PostInitializeComponents()

@@ -6,6 +6,12 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "AIController.h"
 #include "GameFramework/Character.h"
+#include "System/TioSystemStatic.h"
+
+UTioBTTask_RangedAttack::UTioBTTask_RangedAttack()
+{
+	MaxBulletSpread = 4.f;
+}
 
 EBTNodeResult::Type UTioBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
@@ -24,9 +30,17 @@ EBTNodeResult::Type UTioBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent&
 			return EBTNodeResult::Failed;
 		}
 
+		if (!UTioSystemStatic::IsAlive(TargetActor))
+		{
+			return EBTNodeResult::Failed;
+		}
+
 		FVector HandLocation = MyPawn->GetMesh()->GetSocketLocation(HandSocket);
 		FVector Direction = TargetActor->GetActorLocation() - HandLocation;
 		FRotator SpawnRotation = Direction.Rotation();
+
+		SpawnRotation.Pitch += FMath::RandRange(0.f, MaxBulletSpread);
+		SpawnRotation.Yaw += FMath::RandRange(-MaxBulletSpread, MaxBulletSpread);
 
 		FTransform SpawnTM = FTransform(SpawnRotation, HandLocation);
 		FActorSpawnParameters SpwanParams;

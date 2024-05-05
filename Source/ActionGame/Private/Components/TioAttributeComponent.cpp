@@ -10,6 +10,12 @@ UTioAttributeComponent::UTioAttributeComponent()
 
 bool UTioAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
+	if (!GetOwner()->CanBeDamaged())
+	{
+		Delta = 0;
+		return true; // 否则不会爆炸
+	}
+
 	float OldHealth = Health;
 	Health = FMath::Clamp(OldHealth + Delta, 0.f, HealthMax);
 	
@@ -28,3 +34,9 @@ bool UTioAttributeComponent::IsFullHealth() const
 {
 	return FMath::IsNearlyEqual(Health, HealthMax);
 }
+
+bool UTioAttributeComponent::Kill(AActor* InstigatorActor)
+{
+	return ApplyHealthChange(InstigatorActor, -HealthMax);
+}
+
