@@ -31,6 +31,12 @@ public:
 
 	UTioAttributeComponent();
 
+	UFUNCTION(BlueprintCallable)
+	float GetHealth() const { return Health; }
+
+	UFUNCTION(BlueprintCallable)
+	float GetHealthMax() const { return HealthMax; }
+
 protected: 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
 	float Health;

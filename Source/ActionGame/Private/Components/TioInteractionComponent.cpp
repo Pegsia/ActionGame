@@ -5,6 +5,8 @@
 #include "TioGameplayInterface.h"
 #include "DrawDebugHelpers.h"
 
+static TAutoConsoleVariable<bool> CVarDrawDebugInteraction(TEXT("Tio.DrawDebugInteraction"), false, TEXT("Enable Debuge Line for Interact Comp"), ECVF_Cheat);
+
 UTioInteractionComponent::UTioInteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -12,16 +14,15 @@ UTioInteractionComponent::UTioInteractionComponent()
 	TraceRadius = 30.f;
 }
 
-
 void UTioInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
 }
 
 void UTioInteractionComponent::PrimaryInteract()
 {
+	bool bDebugDraw = CVarDrawDebugInteraction.GetValueOnGameThread();
+
 	TArray<FHitResult> Hits;
 
 	FCollisionObjectQueryParams ObjectQueryParams;
@@ -43,8 +44,11 @@ void UTioInteractionComponent::PrimaryInteract()
 
 	for (FHitResult Hit : Hits)
 	{
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, TraceRadius, 16, HitColor, false, 2.0f, 0, 2.0f);
-
+		if (bDebugDraw)
+		{
+			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, TraceRadius, 16, HitColor, false, 2.0f, 0, 2.0f);
+		}
+		
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor)
 		{
@@ -56,8 +60,11 @@ void UTioInteractionComponent::PrimaryInteract()
 			}
 		}
 	}
-	
-	DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, HitColor, false, 2.0f, 0, 2.0f);
+
+	if (bDebugDraw)
+	{
+		DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, HitColor, false, 2.0f, 0, 2.0f);
+	}
 }
 
 

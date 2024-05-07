@@ -191,6 +191,8 @@ void ATioCharacter::OnHealthChange(AActor* InstigatorActor, UTioAttributeCompone
 	{
 		APlayerController* PC = Cast<APlayerController>(GetController());
 		DisableInput(PC);
+
+		SetLifeSpan(3.f);
 	}
 }
 

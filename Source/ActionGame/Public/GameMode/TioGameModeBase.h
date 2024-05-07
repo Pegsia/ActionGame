@@ -17,6 +17,9 @@ class ACTIONGAME_API ATioGameModeBase : public AGameModeBase
 	
 protected:
 
+	UPROPERTY(EditDefaultsOnly, Category = "PlayerRespawn")
+	float RespawnTime;
+
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TSubclassOf<AActor> MinionClass;
 
@@ -36,7 +39,12 @@ protected:
 	UFUNCTION()
 	void OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
+	UFUNCTION()
+	void RespawnPlayerElapsed(AController* Controller);
+
 public:
+
+	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
 
 	UFUNCTION(Exec)
 	void KillAllBots();
