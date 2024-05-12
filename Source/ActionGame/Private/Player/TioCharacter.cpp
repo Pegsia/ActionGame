@@ -51,6 +51,11 @@ void ATioCharacter::Tick(float DeltaTime)
 
 }
 
+FVector ATioCharacter::GetPawnViewLocation() const
+{
+	return CameraComponent->GetComponentLocation();
+}
+
 void ATioCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -137,7 +142,7 @@ void ATioCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 	if (ensureAlways(ClassToSpawn))
 	{
 		FHitResult Hit;
-		FVector TraceStart = CameraComponent->GetComponentLocation() + GetViewRotation().Vector() * 400.f;
+		FVector TraceStart = GetPawnViewLocation() + GetViewRotation().Vector() * 400.f;
 		FVector TraceEnd = TraceStart + GetControlRotation().Vector() * TraceDistance; //距离过小还是会偏移，因为没有hit结果
 
 		FCollisionObjectQueryParams HitObjectQueryParams;

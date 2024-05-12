@@ -88,6 +88,8 @@ protected:
 
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
+	virtual FVector GetPawnViewLocation() const override;
+
 	virtual void BeginPlay() override;
 
 	virtual void PostInitializeComponents() override;

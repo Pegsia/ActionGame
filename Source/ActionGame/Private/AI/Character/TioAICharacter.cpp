@@ -10,6 +10,8 @@
 #include "BrainComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Widget/TioWorldUserWidget.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ATioAICharacter::ATioAICharacter()
 {
@@ -17,6 +19,9 @@ ATioAICharacter::ATioAICharacter()
     AttributeComponent = CreateDefaultSubobject<UTioAttributeComponent>("AttributeComponent");
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+    GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+    GetMesh()->SetGenerateOverlapEvents(true);
 
     ParamName_TimeToHit = "TimeToHit";
 }
@@ -65,6 +70,9 @@ void ATioAICharacter::OnHealthChange(AActor* InstigatorActor, UTioAttributeCompo
 
             GetMesh()->SetAllBodiesSimulatePhysics(true);
             GetMesh()->SetCollisionProfileName("Ragdoll");
+
+            GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            GetCharacterMovement()->DisableMovement();
 
             SetLifeSpan(10.f);
         }

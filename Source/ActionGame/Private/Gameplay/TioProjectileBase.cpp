@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Sound/SoundCue.h"
+#include "Components/AudioComponent.h"
 
 ATioProjectileBase::ATioProjectileBase()
 {
@@ -17,6 +18,9 @@ ATioProjectileBase::ATioProjectileBase()
 
 	EffectComponent = CreateDefaultSubobject<UParticleSystemComponent>("EffectComponent");
 	EffectComponent->SetupAttachment(GetRootComponent());
+
+	AudioComp = CreateDefaultSubobject<UAudioComponent>("AudioComp");
+	AudioComp->SetupAttachment(GetRootComponent());
 
 	ProMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("ProMovementComponent");
 	ProMovementComponent->bRotationFollowsVelocity = true;

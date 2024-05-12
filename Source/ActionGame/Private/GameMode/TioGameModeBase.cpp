@@ -7,36 +7,43 @@
 #include "EngineUtils.h"
 #include "Curves/CurveFloat.h"
 #include "TioCharacter.h"
+#include "TioPlayerState.h"
+#include "DrawDebugHelpers.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogGameModeBase, All, All);
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("Tio.SpawnBots"), false, TEXT("Enable Spawn Bots via time"), ECVF_Cheat);
+static TAutoConsoleVariable<bool> CVarDrawInvaildPowerLocation(TEXT("Tio.InvailPowerLocation"), true, TEXT("DrawInvaildPowerLocation"), ECVF_Cheat);
 
 ATioGameModeBase::ATioGameModeBase()
 {
+	// Bot Spawn
 	SpawnBotInterval = 2.f;
 	RespawnTime = 2.f;
+
+	// Power Up Spawn
+	DesiredPowerUpCount = 8;
+	RequiredPowerUpDistance = 100.f;
+
+	CreditsPerKill = 20;
 }
 
 void ATioGameModeBase::StartPlay()
 {
 	Super::StartPlay();
 
+	// Bot Spawn
 	GetWorldTimerManager().SetTimer(TimerHandle_SpwanBot, this, &ATioGameModeBase::SpawnBotElapsed, SpawnBotInterval, true);
-}
 
-void ATioGameModeBase::KillAllBots()
-{
-	for (TActorIterator<ATioAICharacter> It(GetWorld()); It; ++It)
+	// Power Up Spawn
+	if (ensure(PowerUpClasses.Num() > 0))
 	{
-		ATioAICharacter* AICharacter = *It;
-
-		if (AICharacter->IsAlive())
+		UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, QueryPowerUpSpawn, this, EEnvQueryRunMode::AllMatching, nullptr);
+		if (ensure(QueryInstance))
 		{
-			AICharacter->ApplyHealth(this);
+			QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ATioGameModeBase::OnPowerUpQueryCompleted);
 		}
 	}
 }
-
 
 void ATioGameModeBase::SpawnBotElapsed()
 {
@@ -69,15 +76,15 @@ void ATioGameModeBase::SpawnBotElapsed()
 	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, QueryBotSpawn, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
 	if (ensure(QueryInstance))
 	{
-		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ATioGameModeBase::OnQueryCompleted);
+		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ATioGameModeBase::OnBotSpwanQueryCompleted);
 	}
 }
 
-void ATioGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
+void ATioGameModeBase::OnBotSpwanQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
 {
 	if (QueryStatus != EEnvQueryStatus::Success)
 	{
-		UE_LOG(LogGameModeBase, Error, TEXT("GameMode Spawn Bot EQS Failed "));
+		UE_LOG(LogGameModeBase, Error, TEXT("Spawn Bot EQS Failed"));
 		return;
 	}
 
@@ -85,6 +92,60 @@ void ATioGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* Query
 	if (SpawnLocations.IsValidIndex(0))
 	{
 		GetWorld()->SpawnActor<AActor>(MinionClass, SpawnLocations[0], FRotator::ZeroRotator);
+	}
+}
+
+void ATioGameModeBase::OnPowerUpQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
+{
+	if (QueryStatus != EEnvQueryStatus::Success)
+	{
+		UE_LOG(LogGameModeBase, Error, TEXT("Spawn Power Up EQS Failed"));
+		return;
+	}
+
+	bool bDrawInvaildPowerLocation = CVarDrawInvaildPowerLocation.GetValueOnGameThread();
+	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
+	TArray<FVector> UsedLocations; // log already used spawn locations
+	
+	// spawn while we still can
+	int32 SpawnCount = 0;
+	while (SpawnCount < DesiredPowerUpCount && Locations.Num() > 0)
+	{
+		int32 RandomLocationIndex = FMath::RandRange(0, Locations.Num() - 1);
+		FVector PickedLocation = Locations[RandomLocationIndex];
+
+		bool bIsVaildLocation = true;
+		for (FVector OtherLocation : UsedLocations)
+		{
+			float DistanceTo = (PickedLocation - OtherLocation).Size();
+			if (DistanceTo < RequiredPowerUpDistance)
+			{
+				if (bDrawInvaildPowerLocation)
+				{
+					DrawDebugSphere(GetWorld(), PickedLocation, 32, 16, FColor::Blue, false, 10.f);
+				}
+				bIsVaildLocation = false;
+				break;
+			}
+		}
+
+		if (!bIsVaildLocation)
+		{
+			continue;
+		}
+
+		int32 RandomPowerUpClassIndex = FMath::RandRange(0, PowerUpClasses.Num() - 1);
+		TSubclassOf<AActor> PickedClass = PowerUpClasses[RandomPowerUpClassIndex];
+
+		AActor* NewPowerUpObj = GetWorld()->SpawnActor<AActor>(PickedClass, PickedLocation, FRotator::ZeroRotator);
+		if (!NewPowerUpObj)
+		{
+			UE_LOG(LogGameModeBase, Error, TEXT("Spawn Power Up Actor Failed"));
+			continue;
+		}
+		Locations.RemoveAt(RandomLocationIndex);
+		UsedLocations.Add(PickedLocation);
+		++SpawnCount;
 	}
 }
 
@@ -101,6 +162,16 @@ void ATioGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 
 		GetWorldTimerManager().SetTimer(TimerHandle_PlayerRespawn, Delegate, RespawnTime, false);
 	}
+
+	APawn* KillerPawn = Cast<APawn>(Killer);
+	if (KillerPawn)
+	{
+		ATioPlayerState* PS = KillerPawn->GetPlayerState<ATioPlayerState>();
+		if (PS)
+		{
+			PS->AddCredits(CreditsPerKill);
+		}
+	}
 }
 
 void ATioGameModeBase::RespawnPlayerElapsed(AController* Controller)
@@ -113,3 +184,16 @@ void ATioGameModeBase::RespawnPlayerElapsed(AController* Controller)
 	}
 }
 
+
+void ATioGameModeBase::KillAllBots()
+{
+	for (TActorIterator<ATioAICharacter> It(GetWorld()); It; ++It)
+	{
+		ATioAICharacter* AICharacter = *It;
+
+		if (AICharacter->IsAlive())
+		{
+			AICharacter->ApplyHealth(this);
+		}
+	}
+}

@@ -29,8 +29,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Comp")
 	UParticleSystemComponent* EffectComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Comp")
+	UAudioComponent* AudioComp;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Comp")
 	UParticleSystem* ImpactVFX;
+	
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	USoundCue* ImpactSound;

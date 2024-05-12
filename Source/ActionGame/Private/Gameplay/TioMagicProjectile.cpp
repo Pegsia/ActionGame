@@ -9,6 +9,7 @@
 #include "DrawDebugHelpers.h"
 #include "TioAttributeComponent.h"
 #include "System/TioSystemStatic.h"
+#include "TioGameplayFunctionLibrary.h"
 
 ATioMagicProjectile::ATioMagicProjectile()
 {
@@ -33,15 +34,11 @@ void ATioMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedComp
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		UTioAttributeComponent* AttributeComp = UTioSystemStatic::GetAttributeComponent(OtherActor);
-		if (AttributeComp)
+		if (UTioGameplayFunctionLibrary::ApplyDirectionDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
-			if (AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount))
-			{
-				// 只有造成伤害才会爆炸
-				Explode();
-			}
-		}	
+			// 只有造成伤害才会爆炸
+			Explode();
+		}
 	}
 }
 

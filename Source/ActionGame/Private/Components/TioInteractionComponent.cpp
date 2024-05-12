@@ -10,7 +10,7 @@ static TAutoConsoleVariable<bool> CVarDrawDebugInteraction(TEXT("Tio.DrawDebugIn
 UTioInteractionComponent::UTioInteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	TraceDistance = 500.f;
+	TraceDistance = 800.f;
 	TraceRadius = 30.f;
 }
 
