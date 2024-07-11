@@ -10,6 +10,7 @@ class UPawnSensingComponent;
 class UTioAttributeComponent;
 class UTioWorldUserWidget;
 class UUserWidget;
+class UTioActionComponent;
 
 UCLASS()
 class ACTIONGAME_API ATioAICharacter : public ACharacter
@@ -40,6 +41,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UTioActionComponent* ActionComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = "Projectile")
 	FName ParamName_TimeToHit;

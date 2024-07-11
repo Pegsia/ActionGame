@@ -31,6 +31,7 @@ protected:
 
 	FTimerHandle TimerHandle_RespawnActor;
 
+	UFUNCTION(BlueprintCallable, Category = "PowerUp")
 	void HideAndCoolDownPowerUp();
 
 	void ShowPowerUpActor();

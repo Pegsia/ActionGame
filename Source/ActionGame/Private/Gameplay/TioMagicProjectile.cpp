@@ -10,10 +10,12 @@
 #include "TioAttributeComponent.h"
 #include "System/TioSystemStatic.h"
 #include "TioGameplayFunctionLibrary.h"
+#include "TioActionComponent.h"
 
 ATioMagicProjectile::ATioMagicProjectile()
 {
 	DamageAmount = 20.f;
+	bParried = false; // 防止反复反弹
 }
 
 void ATioMagicProjectile::BeginPlay()
@@ -34,6 +36,18 @@ void ATioMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedComp
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
+		if (!bParried)
+		{
+			UTioActionComponent* ActionComp = Cast<UTioActionComponent>(OtherActor->GetComponentByClass(UTioActionComponent::StaticClass()));
+			if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))
+			{
+				ProMovementComponent->Velocity = -ProMovementComponent->Velocity;
+				SetInstigator(Cast<APawn>(OtherActor));
+			}
+			bParried = true;
+			return; // 否则直接爆炸了
+		}
+
 		if (UTioGameplayFunctionLibrary::ApplyDirectionDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
 			// 只有造成伤害才会爆炸

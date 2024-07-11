@@ -10,6 +10,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UTioInteractionComponent;
 class UTioAttributeComponent;
+class UTioActionComponent;
 
 UCLASS()
 class ACTIONGAME_API ATioCharacter : public ACharacter
@@ -17,37 +18,8 @@ class ACTIONGAME_API ATioCharacter : public ACharacter
 	GENERATED_BODY()
 
 protected:
-
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	TSubclassOf<AActor> ProjectileClass;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	TSubclassOf<AActor> TelePortClass;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	TSubclassOf<AActor> BlackHoleClass;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	FName SocketName;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	UAnimMontage* AttackAnim;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	UParticleSystem* CastingEffect;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	float AttackAnimDelay;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	float TraceDistance;
-
 	UPROPERTY(VisibleAnywhere, Category = "Projectile")
 	FName ParamName_TimeToHit;
-
-	FTimerHandle TimerHandle_AttackDelay;
-	FTimerHandle TimerHandle_TeleportDelay;
-	FTimerHandle TimerHandle_BlackHoleDelay;
 
 public:
 	ATioCharacter();
@@ -66,27 +38,23 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UTioAttributeComponent* AttributeComponent;
 
-	void MoveForward(float Value);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UTioActionComponent* ActionComponent;
 
+	// Move
+	void MoveForward(float Value);
 	void MoveRight(float Value);
 
-	void StartAttackEffects();
+	void StartSprint();
+	void StopSprint();
 
+	// Projectiles
 	void PrimaryAttack();
-
-	void PrimaryAttack_TimeElapsed();
-
-	void PrimaryInteract();
-
 	void TelePort();
-
-	void TelePort_TimeElapsed();
-
 	void BlackHole();
 
-	void BlackHole_TimeElapsed();
-
-	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
+	// Interact
+	void PrimaryInteract();
 
 	virtual FVector GetPawnViewLocation() const override;
 

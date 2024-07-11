@@ -12,11 +12,13 @@
 #include "Widget/TioWorldUserWidget.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/TioActionComponent.h"
 
 ATioAICharacter::ATioAICharacter()
 {
     PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComponent");
     AttributeComponent = CreateDefaultSubobject<UTioAttributeComponent>("AttributeComponent");
+    ActionComponent = CreateDefaultSubobject<UTioActionComponent>("ActionComponent");
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 

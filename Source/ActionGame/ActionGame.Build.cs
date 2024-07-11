@@ -16,6 +16,7 @@ public class ActionGame : ModuleRules
 			"AIModule",
 			"GameplayTasks",
 			"UMG",
+			"GameplayTags",
 		});
 
 		PublicIncludePaths.AddRange(new string[]
@@ -27,6 +28,7 @@ public class ActionGame : ModuleRules
 			"ActionGame/Public/System",
 			"ActionGame/Public/GameMode",
 			"ActionGame/Public/Widget",
+			"ActionGame/Public/Actions",
 			"ActionGame/Public/AI",
 			"ActionGame/Public/AI/Character",
 			"ActionGame/Public/AI/Service",

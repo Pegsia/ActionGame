@@ -8,6 +8,7 @@
 #include "DrawDebugHelpers.h"
 #include "TioAttributeComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/TioActionComponent.h"
 
 ATioCharacter::ATioCharacter()
 {
@@ -26,9 +27,7 @@ ATioCharacter::ATioCharacter()
 	// ActorComponent
 	InteractionComponent = CreateDefaultSubobject<UTioInteractionComponent>("InteractionComponent");
 	AttributeComponent = CreateDefaultSubobject<UTioAttributeComponent>("AttributeComponent");
-
-	AttackAnimDelay = 0.16f;
-	TraceDistance = 1000.f;
+	ActionComponent = CreateDefaultSubobject<UTioActionComponent>("AtionComponent");
 
 	ParamName_TimeToHit = "TimeToHit";
 }
@@ -66,6 +65,9 @@ void ATioCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ATioCharacter::StartSprint);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ATioCharacter::StopSprint);
+
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ATioCharacter::PrimaryAttack);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ATioCharacter::PrimaryInteract);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATioCharacter::Jump);
@@ -93,96 +95,34 @@ void ATioCharacter::MoveRight(float Value)
 	AddMovementInput(RightVector, Value);
 }
 
-void ATioCharacter::StartAttackEffects()
+void ATioCharacter::StartSprint()
 {
-	PlayAnimMontage(AttackAnim);
-	UGameplayStatics::SpawnEmitterAttached(CastingEffect, GetMesh(), SocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
+	ActionComponent->StartActionByName(this, "Sprint");
+}
+
+void ATioCharacter::StopSprint()
+{
+	ActionComponent->StopActionByName(this, "Sprint");
 }
 
 void ATioCharacter::PrimaryAttack()
 {
-	StartAttackEffects();
-	GetWorldTimerManager().SetTimer(TimerHandle_AttackDelay, this, &ATioCharacter::PrimaryAttack_TimeElapsed, AttackAnimDelay);	
+	ActionComponent->StartActionByName(this, "PrimaryAttack");
 }
 
-void ATioCharacter::PrimaryAttack_TimeElapsed()
+void ATioCharacter::TelePort()
 {
-	SpawnProjectile(ProjectileClass);
+	ActionComponent->StartActionByName(this, "TelePort");
+}
+
+void ATioCharacter::BlackHole()
+{
+	ActionComponent->StartActionByName(this, "BlackHole");
 }
 
 void ATioCharacter::PrimaryInteract()
 {
 	InteractionComponent->PrimaryInteract();
-}
-
-void ATioCharacter::TelePort()
-{
-	StartAttackEffects();
-	GetWorldTimerManager().SetTimer(TimerHandle_TeleportDelay, this, &ATioCharacter::TelePort_TimeElapsed, AttackAnimDelay);
-}
-
-void ATioCharacter::TelePort_TimeElapsed()
-{
-	SpawnProjectile(TelePortClass);
-}
-
-void ATioCharacter::BlackHole()
-{
-	StartAttackEffects();
-	GetWorldTimerManager().SetTimer(TimerHandle_BlackHoleDelay, this, &ATioCharacter::BlackHole_TimeElapsed, AttackAnimDelay);
-}
-
-void ATioCharacter::BlackHole_TimeElapsed()
-{
-	SpawnProjectile(BlackHoleClass);
-}
-
-void ATioCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
-{
-	if (ensureAlways(ClassToSpawn))
-	{
-		FHitResult Hit;
-		FVector TraceStart = GetPawnViewLocation() + GetViewRotation().Vector() * 400.f;
-		FVector TraceEnd = TraceStart + GetControlRotation().Vector() * TraceDistance; //距离过小还是会偏移，因为没有hit结果
-
-		FCollisionObjectQueryParams HitObjectQueryParams;
-		HitObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		HitObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-		HitObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-
-		FCollisionShape Shape;
-		Shape.SetSphere(20.f);
-
-		FCollisionQueryParams QueryParams;
-		QueryParams.AddIgnoredActor(this);
-
-		bool bBlockingHit = GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, HitObjectQueryParams, Shape, QueryParams);
-
-		if (bBlockingHit)
-		{
-			TraceEnd = Hit.ImpactPoint;
-		}
-		/*DrawDebugSphere(GetWorld(), TraceStart, 30.f, 16, FColor::Yellow, false, 10.f, 0, 5.f);
-		DrawDebugSphere(GetWorld(), TraceEnd, 30.f, 16, FColor::Blue, false, 10.f, 0, 5.f);*/
-
-		// 生成
-		FVector HandLocation = GetMesh()->GetSocketLocation(SocketName);
-		// 生成起点和LineTrace起点不同
-		FRotator ProRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
-		FTransform SpawnTM = FTransform(ProRotation, HandLocation);
-
-		// TODO: SetRotation
-		//SetActorRotation(ProRotation);
-		
-		//DrawDebugSphere(GetWorld(), HandLocation, 30.f, 16, FColor::Red, false, 10.f, 0, 5.f);
-		//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 10.f, 0, 5.f);
-		
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = this;
-
-		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTM, SpawnParams);
-	}	
 }
 
 void ATioCharacter::OnHealthChange(AActor* InstigatorActor, UTioAttributeComponent* AttributeComp, float NewHealth, float Delta)

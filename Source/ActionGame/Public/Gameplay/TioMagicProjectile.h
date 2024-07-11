@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "TioProjectileBase.h"
+#include "GameplayTagContainer.h"
 #include "TioMagicProjectile.generated.h"
 
 UCLASS()
@@ -19,6 +20,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	float DamageAmount;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Action")
+	FGameplayTag ParryTag;
+
+	bool bParried;
 
 	UFUNCTION()
 	void OnComponentOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
