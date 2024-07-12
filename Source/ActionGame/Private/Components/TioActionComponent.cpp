@@ -4,7 +4,7 @@
 #include "TioActionComponent.h"
 #include "Actions/TioAction.h"
 
-
+DEFINE_LOG_CATEGORY_STATIC(LogActionComp, All, All);
 
 UTioActionComponent::UTioActionComponent()
 {
@@ -18,7 +18,7 @@ void UTioActionComponent::BeginPlay()
 
 	for (TSubclassOf<UTioAction> ActionClass : DefaultActions)
 	{
-		AddAction(ActionClass);
+		AddAction(GetOwner(), ActionClass);
 	}
 }
 
@@ -30,7 +30,7 @@ void UTioActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::White, DebugMes);
 }
 
-void UTioActionComponent::AddAction(TSubclassOf<UTioAction> ActionClass)
+void UTioActionComponent::AddAction(AActor* InstigatorActor, TSubclassOf<UTioAction> ActionClass)
 {
 	if (!ensure(ActionClass))
 	{
@@ -41,7 +41,21 @@ void UTioActionComponent::AddAction(TSubclassOf<UTioAction> ActionClass)
 	if (ensure(NewAction))
 	{
 		ActionArray.Add(NewAction);
+		if (NewAction->bAutoStart && ensure(NewAction->CanStart(InstigatorActor))) //保险
+		{
+			NewAction->StartAction(InstigatorActor);
+		}
 	}
+}
+
+void UTioActionComponent::RemoveAction(AActor* InstigatorActor, UTioAction* ActionToRemove)
+{
+	if (!ensure(ActionToRemove && !ActionToRemove->IsRunning()))
+	{
+		UE_LOG(LogActionComp, Error, TEXT("ActionToRemove is Missing or Running"));
+		return;
+	}
+	ActionArray.Remove(ActionToRemove);
 }
 
 bool UTioActionComponent::StartActionByName(AActor* InstigatorActor, FName ActionName)

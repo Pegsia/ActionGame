@@ -4,10 +4,12 @@
 #include "TioPowerUpActor_HealthPotion.h"
 #include "TioAttributeComponent.h"
 #include "System/TioSystemStatic.h"
+#include "TioPlayerState.h"
 
 ATioPowerUpActor_HealthPotion::ATioPowerUpActor_HealthPotion()
 {
 	HealAmount = 40.f;
+	CreditsCost = 30;
 }
 
 void ATioPowerUpActor_HealthPotion::Interact_Implementation(APawn* InsgitatorPawn)
@@ -20,9 +22,13 @@ void ATioPowerUpActor_HealthPotion::Interact_Implementation(APawn* InsgitatorPaw
 	UTioAttributeComponent* AttributeComp = UTioSystemStatic::GetAttributeComponent(InsgitatorPawn);
 	if (AttributeComp && !AttributeComp->IsFullHealth())
 	{
-		if (AttributeComp->ApplyHealthChange(this, HealAmount))
+		ATioPlayerState* PS = InsgitatorPawn->GetPlayerState<ATioPlayerState>();
+		if (PS && PS->RemoveCredits(CreditsCost))
 		{
-			HideAndCoolDownPowerUp();
+			if (AttributeComp->ApplyHealthChange(this, HealAmount))
+			{
+				HideAndCoolDownPowerUp();
+			}
 		}
 	}
 }

@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "TioInteractionComponent.generated.h"
 
+class UTioWorldUserWidget;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ACTIONGAME_API UTioInteractionComponent : public UActorComponent
@@ -13,18 +14,31 @@ class ACTIONGAME_API UTioInteractionComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-
 	UPROPERTY(EditAnywhere, Category = "Trace")
 	float TraceDistance;
 
 	UPROPERTY(EditAnywhere, Category = "Trace")
 	float TraceRadius;
 
+	UPROPERTY(EditAnywhere, Category = "Trace")
+	TEnumAsByte<ECollisionChannel> CollisionChannel;
+
+	UPROPERTY()
+	AActor* FocusActor;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widget")
+	TSubclassOf<UTioWorldUserWidget> InteractWidgetClass;
+
+	UTioWorldUserWidget* InteractWidgetInstance;
+
+	void FindBestInteractable();
+
 	void PrimaryInteract();
 
 	UTioInteractionComponent();
 
 protected:
-	virtual void BeginPlay() override;
 
+	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 };

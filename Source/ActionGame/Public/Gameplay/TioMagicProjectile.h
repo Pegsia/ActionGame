@@ -8,6 +8,8 @@
 #include "GameplayTagContainer.h"
 #include "TioMagicProjectile.generated.h"
 
+class UTioAction_Effect;
+
 UCLASS()
 class ACTIONGAME_API ATioMagicProjectile : public ATioProjectileBase
 {
@@ -23,6 +25,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	FGameplayTag ParryTag;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+	TSubclassOf<UTioAction_Effect> BurnningEffectClass;
 
 	bool bParried;
 

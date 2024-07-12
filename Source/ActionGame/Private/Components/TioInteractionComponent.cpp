@@ -4,6 +4,7 @@
 #include "Components/TioInteractionComponent.h"
 #include "TioGameplayInterface.h"
 #include "DrawDebugHelpers.h"
+#include "Widget/TioWorldUserWidget.h"
 
 static TAutoConsoleVariable<bool> CVarDrawDebugInteraction(TEXT("Tio.DrawDebugInteraction"), false, TEXT("Enable Debuge Line for Interact Comp"), ECVF_Cheat);
 
@@ -12,6 +13,7 @@ UTioInteractionComponent::UTioInteractionComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	TraceDistance = 800.f;
 	TraceRadius = 30.f;
+	CollisionChannel = ECollisionChannel::ECC_WorldDynamic;
 }
 
 void UTioInteractionComponent::BeginPlay()
@@ -19,14 +21,21 @@ void UTioInteractionComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-void UTioInteractionComponent::PrimaryInteract()
+void UTioInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	FindBestInteractable();
+}
+
+void UTioInteractionComponent::FindBestInteractable()
 {
 	bool bDebugDraw = CVarDrawDebugInteraction.GetValueOnGameThread();
 
 	TArray<FHitResult> Hits;
 
 	FCollisionObjectQueryParams ObjectQueryParams;
-	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	ObjectQueryParams.AddObjectTypesToQuery(CollisionChannel);
 
 	AActor* MyOwner = GetOwner();
 
@@ -42,29 +51,64 @@ void UTioInteractionComponent::PrimaryInteract()
 	bool bBlockingHit = GetWorld()->SweepMultiByObjectType(Hits, EyeLocation, TraceEnd, FQuat::Identity, ObjectQueryParams, Shape);
 	FColor HitColor = bBlockingHit ? FColor::Red : FColor::Green;
 
+	FocusActor = nullptr; // clear before set
+
 	for (FHitResult Hit : Hits)
 	{
 		if (bDebugDraw)
 		{
 			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, TraceRadius, 16, HitColor, false, 2.0f, 0, 2.0f);
 		}
-		
+
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor)
 		{
 			if (HitActor->Implements<UTioGameplayInterface>())
 			{
-				APawn* MyPawn = Cast<APawn>(MyOwner);
-				ITioGameplayInterface::Execute_Interact(HitActor, MyPawn);
+				FocusActor = HitActor;
 				break;
 			}
 		}
+	}
+
+	if (FocusActor) // 设置widget
+	{
+		if (InteractWidgetInstance == nullptr && ensure(InteractWidgetClass))
+		{
+			InteractWidgetInstance = CreateWidget<UTioWorldUserWidget>(GetWorld(), InteractWidgetClass);
+		}
+		if (InteractWidgetInstance)
+		{
+			InteractWidgetInstance->AttachActor = FocusActor;
+			if (!InteractWidgetInstance->IsInViewport())
+			{
+				InteractWidgetInstance->AddToViewport();
+			}
+		}
+	}
+	else
+	{
+		if (InteractWidgetInstance)
+		{
+			InteractWidgetInstance->RemoveFromParent();
+		}		
 	}
 
 	if (bDebugDraw)
 	{
 		DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, HitColor, false, 2.0f, 0, 2.0f);
 	}
+}
+
+void UTioInteractionComponent::PrimaryInteract()
+{
+	if (FocusActor == nullptr)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, FString::Printf(TEXT("No focus actor to interact")));
+		return;
+	}
+	APawn* MyPawn = Cast<APawn>(GetOwner());
+	ITioGameplayInterface::Execute_Interact(FocusActor, MyPawn);
 }
 
 

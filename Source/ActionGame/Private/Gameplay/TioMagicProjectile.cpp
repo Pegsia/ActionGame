@@ -11,6 +11,7 @@
 #include "System/TioSystemStatic.h"
 #include "TioGameplayFunctionLibrary.h"
 #include "TioActionComponent.h"
+#include "Actions/TioAction_Effect.h"
 
 ATioMagicProjectile::ATioMagicProjectile()
 {
@@ -36,14 +37,12 @@ void ATioMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedComp
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		if (!bParried)
+		UTioActionComponent* ActionComp = Cast<UTioActionComponent>(OtherActor->GetComponentByClass(UTioActionComponent::StaticClass()));
+		if (!bParried && ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))
 		{
-			UTioActionComponent* ActionComp = Cast<UTioActionComponent>(OtherActor->GetComponentByClass(UTioActionComponent::StaticClass()));
-			if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))
-			{
-				ProMovementComponent->Velocity = -ProMovementComponent->Velocity;
-				SetInstigator(Cast<APawn>(OtherActor));
-			}
+			ProMovementComponent->Velocity = -ProMovementComponent->Velocity;
+			SetInstigator(Cast<APawn>(OtherActor));
+
 			bParried = true;
 			return; // 否则直接爆炸了
 		}
@@ -52,6 +51,11 @@ void ATioMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedComp
 		{
 			// 只有造成伤害才会爆炸
 			Explode();
+
+			if (ActionComp && BurnningEffectClass)
+			{
+				ActionComp->AddAction(GetInstigator(), BurnningEffectClass);
+			}
 		}
 	}
 }

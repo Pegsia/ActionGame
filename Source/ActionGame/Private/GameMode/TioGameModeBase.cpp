@@ -25,6 +25,8 @@ ATioGameModeBase::ATioGameModeBase()
 	RequiredPowerUpDistance = 100.f;
 
 	CreditsPerKill = 20;
+
+	PlayerStateClass = ATioPlayerState::StaticClass();
 }
 
 void ATioGameModeBase::StartPlay()

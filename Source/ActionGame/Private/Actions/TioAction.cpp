@@ -6,6 +6,11 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogAction, All, All);
 
+UTioAction::UTioAction()
+{
+	bAutoStart = false;
+}
+
 bool UTioAction::CanStart_Implementation(AActor* InstigatorActor)
 {
 	if (IsRunning())

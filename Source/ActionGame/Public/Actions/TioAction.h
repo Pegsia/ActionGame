@@ -24,6 +24,11 @@ protected:
 	bool bIsRunning;
 
 public:
+
+	UTioAction();
+
+	bool bAutoStart;
+
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
 	bool CanStart(AActor* InstigatorActor);
 

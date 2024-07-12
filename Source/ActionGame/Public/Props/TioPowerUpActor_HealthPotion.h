@@ -16,6 +16,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Heal")
 	float HealAmount;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Heal")
+	float CreditsCost;
+
 public:
 	ATioPowerUpActor_HealthPotion();
 	
