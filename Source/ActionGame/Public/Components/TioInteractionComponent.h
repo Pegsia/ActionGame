@@ -30,10 +30,13 @@ public:
 	TSubclassOf<UTioWorldUserWidget> InteractWidgetClass;
 
 	UTioWorldUserWidget* InteractWidgetInstance;
-
+	
 	void FindBestInteractable();
 
 	void PrimaryInteract();
+
+	UFUNCTION(Server, Reliable, Category = "Interact")
+	void ServerInteract(AActor* InFocusActor);
 
 	UTioInteractionComponent();
 

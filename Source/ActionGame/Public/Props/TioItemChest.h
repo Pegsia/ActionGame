@@ -19,11 +19,16 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Interact")
 	float TargetPitch;
 
-	void Interact_Implementation(APawn* InstigatorPawn);
+	void Interact_Implementation(APawn* InstigatorPawn);	
 
 	ATioItemChest();
 
 protected:
+	UPROPERTY(ReplicatedUsing = "OnRep_LidOpened", BlueprintReadOnly, Category = "Net")
+	bool bLidOpended;
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnRep_LidOpened();
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 	UStaticMeshComponent* BaseMesh;

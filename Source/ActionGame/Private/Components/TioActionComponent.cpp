@@ -25,8 +25,10 @@ void UTioActionComponent::BeginPlay()
 void UTioActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	FString DebugMes = FString::Printf(TEXT("[%s] Active Tags: %s"), *GetNameSafe(GetOwner()), *ActiveGameplayTags.ToStringSimple());
+	
+	const ENetRole Role = GetOwner()->GetLocalRole();
+	FString RoleString = Role == ROLE_Authority ? TEXT("Server") : TEXT("Client");
+	FString DebugMes = FString::Printf(TEXT("[%s] [%s] Active Tags: %s"), *RoleString, *GetNameSafe(GetOwner()), *ActiveGameplayTags.ToStringSimple());
 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::White, DebugMes);
 }
 

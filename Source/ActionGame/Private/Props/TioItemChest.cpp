@@ -4,6 +4,7 @@
 #include "TioItemChest.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Net/UnrealNetwork.h"
 
 ATioItemChest::ATioItemChest()
 {
@@ -21,6 +22,9 @@ ATioItemChest::ATioItemChest()
 	Effect->bAutoActivate = false;
 
 	TargetPitch = 110.f;
+	bLidOpended = false;
+
+	SetReplicates(true);
 }
 
 void ATioItemChest::BeginPlay()
@@ -31,6 +35,18 @@ void ATioItemChest::BeginPlay()
 
 void ATioItemChest::Interact_Implementation(APawn* InstigatorPawn)
 {
+	bLidOpended = !bLidOpended;
+	OnRep_LidOpened();
+}
+
+void ATioItemChest::OnRep_LidOpened_Implementation()
+{
 	LidMesh->SetRelativeRotation(FRotator(TargetPitch, 0.f, 0.f));
 }
 
+void ATioItemChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ATioItemChest, bLidOpended);
+}
