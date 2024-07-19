@@ -11,6 +11,7 @@ UTioAction_Effect::UTioAction_Effect()
 
 void UTioAction_Effect::StartAction_Implementation(AActor* InstigatorActor)
 {
+	Super::StartAction_Implementation(InstigatorActor);
 	if (Duration > 0.0f)
 	{
 		FTimerDelegate D_Delegate;

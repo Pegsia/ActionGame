@@ -16,6 +16,8 @@ ATioPowerUpActor::ATioPowerUpActor()
 	MeshComponent->SetupAttachment(GetRootComponent());
 
 	RespawnTime = 10.f;
+	
+	SetReplicates(true);
 }
 
 void ATioPowerUpActor::Interact_Implementation(APawn* Insgitator)

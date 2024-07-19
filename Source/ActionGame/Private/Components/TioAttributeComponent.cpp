@@ -2,6 +2,7 @@
 
 #include "TioAttributeComponent.h"
 #include "TioGameModeBase.h"
+#include "Net/UnrealNetwork.h"
 
 static TAutoConsoleVariable<float> CvarDamageMultiplier(TEXT("Tio.DamageMultiplier"), 1.f, TEXT("Global Damage Multiplier for Attribute Comp"), ECVF_Cheat);
 
@@ -9,6 +10,8 @@ UTioAttributeComponent::UTioAttributeComponent()
 {
 	HealthMax = 100.f;
 	Health = HealthMax;
+
+	SetIsReplicatedByDefault(true);
 }
 
 bool UTioAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
@@ -28,8 +31,12 @@ bool UTioAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float De
 	Health = FMath::Clamp(OldHealth + Delta, 0.f, HealthMax);
 	
 	float ActualDelta = Health - OldHealth;
-	OnHealthChange.Broadcast(InstigatorActor, this, Health, ActualDelta);
-
+	//OnHealthChange.Broadcast(InstigatorActor, this, Health, ActualDelta);
+	if (ActualDelta != 0.0f)
+	{
+		NetMulticastOnHealthChanged(InstigatorActor, Health, ActualDelta);
+	}
+	
 	//Died
 	if (ActualDelta < 0.f && Health == 0.f)
 	{
@@ -41,6 +48,11 @@ bool UTioAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float De
 	}
 
 	return ActualDelta != 0;
+}
+
+void UTioAttributeComponent::NetMulticastOnHealthChanged_Implementation(AActor* InstigatorActor, float NewHealth, float Delta)
+{
+	OnHealthChange.Broadcast(InstigatorActor, this, Health, Delta);
 }
 
 bool UTioAttributeComponent::IsAlive() const
@@ -58,3 +70,10 @@ bool UTioAttributeComponent::Kill(AActor* InstigatorActor)
 	return ApplyHealthChange(InstigatorActor, -HealthMax);
 }
 
+void UTioAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UTioAttributeComponent, Health);
+	DOREPLIFETIME(UTioAttributeComponent, HealthMax);
+}

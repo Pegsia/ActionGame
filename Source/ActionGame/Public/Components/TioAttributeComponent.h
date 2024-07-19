@@ -38,9 +38,12 @@ public:
 	float GetHealthMax() const { return HealthMax; }
 
 protected: 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Health")
 	float Health;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Health")
 	float HealthMax;
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void NetMulticastOnHealthChanged(AActor* InstigatorActor, float NewHealth, float Delta);
 };

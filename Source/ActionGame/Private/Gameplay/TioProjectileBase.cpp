@@ -27,6 +27,8 @@ ATioProjectileBase::ATioProjectileBase()
 	ProMovementComponent->bInitialVelocityInLocalSpace = true;
 	ProMovementComponent->InitialSpeed = 5000;
 	ProMovementComponent->ProjectileGravityScale = 0.0f;
+
+	//SetReplicates(true);
 }
 
 void ATioProjectileBase::BeginPlay()
