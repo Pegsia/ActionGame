@@ -36,6 +36,10 @@ protected:
 
 	void ShowPowerUpActor();
 
-	void SetPowerUpState(bool bIsActive);
+	void SetPowerUpState(bool bNewIsActive);
+	UPROPERTY(ReplicatedUsing = "OnRep_IsActive")
+	bool bIsActive;
 
+	UFUNCTION()
+	void OnRep_IsActive();
 };

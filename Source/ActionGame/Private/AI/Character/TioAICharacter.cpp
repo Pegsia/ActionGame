@@ -26,6 +26,7 @@ ATioAICharacter::ATioAICharacter()
     GetMesh()->SetGenerateOverlapEvents(true);
 
     ParamName_TimeToHit = "TimeToHit";
+    TargetActorKey = "TargetActor";
 }
 
 void ATioAICharacter::PostInitializeComponents()
@@ -37,8 +38,22 @@ void ATioAICharacter::PostInitializeComponents()
 
 void ATioAICharacter::OnSeePawn(APawn* Pawn)
 {
-	SetTargetActor(Pawn);
+    if (GetTargetActor() != Pawn)
+    {
+        SetTargetActor(Pawn);
+        MulticastPawnSeen();
+    }
     //DrawDebugString(GetWorld(), GetActorLocation(), "On See Pawn", nullptr, FColor::Blue, 4.f, false);
+}
+
+void ATioAICharacter::MulticastPawnSeen_Implementation()
+{
+	UTioWorldUserWidget* SpottedWidget = CreateWidget<UTioWorldUserWidget>(GetWorld(), SpottedWidgetClass);
+	if (SpottedWidget)
+	{
+		SpottedWidget->AttachActor = this;
+		SpottedWidget->AddToViewport(10); // 确保其在别的UI之上
+	}
 }
 
 void ATioAICharacter::OnHealthChange(AActor* InstigatorActor, UTioAttributeComponent* AttributeComp, float NewHealth, float Delta)
@@ -48,6 +63,11 @@ void ATioAICharacter::OnHealthChange(AActor* InstigatorActor, UTioAttributeCompo
         if (InstigatorActor != this)
         {
             SetTargetActor(InstigatorActor);
+			if (ensureAlways(InstigatorActor))
+			{
+                if(InstigatorActor->HasAuthority() && InstigatorActor != GetTargetActor())
+				    MulticastPawnSeen();
+			}
         }
 
         if (HealthWidget == nullptr)
@@ -86,8 +106,18 @@ void ATioAICharacter::SetTargetActor(AActor* TargetActor)
 	AAIController* AIC = Cast<AAIController>(GetController());
 	if (AIC)
 	{
-        AIC->GetBlackboardComponent()->SetValueAsObject("TargetActor", TargetActor);
+        AIC->GetBlackboardComponent()->SetValueAsObject(TargetActorKey, TargetActor);
 	}
+}
+
+AActor* ATioAICharacter::GetTargetActor() const
+{
+    AAIController* AIC = Cast<AAIController>(GetController());
+    if (AIC)
+    {
+        return Cast<AActor>(AIC->GetBlackboardComponent()->GetValueAsObject(TargetActorKey));
+    }
+    return nullptr;
 }
 
 bool ATioAICharacter::ApplyHealth(AActor* InstigatorActor, float Amount /*= 100.f*/)

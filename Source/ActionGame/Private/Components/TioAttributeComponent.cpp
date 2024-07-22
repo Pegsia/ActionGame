@@ -11,6 +11,9 @@ UTioAttributeComponent::UTioAttributeComponent()
 	HealthMax = 100.f;
 	Health = HealthMax;
 
+	Rage = 0.f;
+	RageMax = 100.f;
+
 	SetIsReplicatedByDefault(true);
 }
 
@@ -31,7 +34,6 @@ bool UTioAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float De
 	Health = FMath::Clamp(OldHealth + Delta, 0.f, HealthMax);
 	
 	float ActualDelta = Health - OldHealth;
-	//OnHealthChange.Broadcast(InstigatorActor, this, Health, ActualDelta);
 	if (ActualDelta != 0.0f)
 	{
 		NetMulticastOnHealthChanged(InstigatorActor, Health, ActualDelta);
@@ -55,6 +57,24 @@ void UTioAttributeComponent::NetMulticastOnHealthChanged_Implementation(AActor* 
 	OnHealthChange.Broadcast(InstigatorActor, this, Health, Delta);
 }
 
+bool UTioAttributeComponent::ApplyRageChange(AActor* InstigatorActor, float Delta)
+{
+	float OldRage = Rage;
+	Rage = FMath::Clamp(Rage + Delta, 0.f, RageMax);
+	float ActualDelta = Rage - OldRage;
+
+	if (ActualDelta != 0)
+	{
+		NetMulticastOnRageChanged(InstigatorActor, Rage, ActualDelta);
+	}
+	return ActualDelta != 0;
+}
+
+void UTioAttributeComponent::NetMulticastOnRageChanged_Implementation(AActor* InstigatorActor, float NewRage, float Delta)
+{
+	OnRageChange.Broadcast(InstigatorActor, this, NewRage, Delta);
+}
+
 bool UTioAttributeComponent::IsAlive() const
 {
 	return Health > 0.f;
@@ -76,4 +96,7 @@ void UTioAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 
 	DOREPLIFETIME(UTioAttributeComponent, Health);
 	DOREPLIFETIME(UTioAttributeComponent, HealthMax);
+
+	DOREPLIFETIME(UTioAttributeComponent, Rage);
+	DOREPLIFETIME(UTioAttributeComponent, RageMax);
 }

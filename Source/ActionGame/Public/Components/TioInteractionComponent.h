@@ -29,6 +29,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Widget")
 	TSubclassOf<UTioWorldUserWidget> InteractWidgetClass;
 
+	UPROPERTY()
 	UTioWorldUserWidget* InteractWidgetInstance;
 	
 	void FindBestInteractable();

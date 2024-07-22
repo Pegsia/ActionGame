@@ -15,18 +15,28 @@ class ACTIONGAME_API UTioAction : public UObject
 	GENERATED_BODY()
 	
 protected:
+	UPROPERTY(Replicated)
+	UTioActionComponent* ActionComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer GrantsTags;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer BlockedTags;
 
+	UPROPERTY(ReplicatedUsing = "OnRep_Running")
 	bool bIsRunning;
+
+	UFUNCTION()
+	void OnRep_Running();
 
 public:
 
 	UTioAction();
 
+	void Initialize(UTioActionComponent* NewActionComponent);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	bool bAutoStart;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
@@ -48,5 +58,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	UTioActionComponent* GetOwningComponent() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	AActor* GetOwningActor() const;
+
 	UWorld* GetWorld() const override;
+
+	bool IsSupportedForNetworking() const override
+	{
+		return true;
+	}
 };

@@ -130,6 +130,9 @@ void ATioCharacter::OnHealthChange(AActor* InstigatorActor, UTioAttributeCompone
 	if (Delta < 0.f)
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials(ParamName_TimeToHit, GetWorld()->TimeSeconds);
+
+		float RageDelta = FMath::Abs(Delta);
+		AttributeComponent->ApplyRageChange(InstigatorActor, RageDelta);
 	}
 
 	if (NewHealth <= 0.f && Delta < 0.f)

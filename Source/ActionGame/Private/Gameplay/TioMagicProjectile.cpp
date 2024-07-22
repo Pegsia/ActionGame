@@ -11,7 +11,7 @@
 #include "System/TioSystemStatic.h"
 #include "TioGameplayFunctionLibrary.h"
 #include "TioActionComponent.h"
-#include "Actions/TioAction_Effect.h"
+#include "Actions/TioActionEffect.h"
 
 ATioMagicProjectile::ATioMagicProjectile()
 {

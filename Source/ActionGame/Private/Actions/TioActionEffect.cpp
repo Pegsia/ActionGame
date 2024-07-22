@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TioAction_Effect.h"
+#include "TioActionEffect.h"
 #include "Components/TioActionComponent.h"
 
-UTioAction_Effect::UTioAction_Effect()
+UTioActionEffect::UTioActionEffect()
 {
 	bAutoStart = true;
 }
 
-void UTioAction_Effect::StartAction_Implementation(AActor* InstigatorActor)
+void UTioActionEffect::StartAction_Implementation(AActor* InstigatorActor)
 {
 	Super::StartAction_Implementation(InstigatorActor);
 	if (Duration > 0.0f)
@@ -26,7 +26,7 @@ void UTioAction_Effect::StartAction_Implementation(AActor* InstigatorActor)
 	}
 }
 
-void UTioAction_Effect::StopAction_Implementation(AActor* InstigatorActor)
+void UTioActionEffect::StopAction_Implementation(AActor* InstigatorActor)
 {
 	if (GetWorld()->GetTimerManager().GetTimerRemaining(TimerHandle_Period) < KINDA_SMALL_NUMBER)
 	{
@@ -44,7 +44,11 @@ void UTioAction_Effect::StopAction_Implementation(AActor* InstigatorActor)
 	}
 }
 
-void UTioAction_Effect::ExecutePeriodicEffect_Implementation(AActor* InstigatorActor)
+void UTioActionEffect::ExecutePeriodicEffect_Implementation(AActor* InstigatorActor)
 {
-
+	AActor* OwningActor = GetOwningActor();
+	if (OwningActor && OwningActor->IsPendingKill()) 
+	{
+		return; // 被击杀后停止活动
+	}
 }

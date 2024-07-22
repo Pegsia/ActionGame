@@ -18,7 +18,6 @@ class ACTIONGAME_API ATioAICharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-
 	UFUNCTION(BlueprintCallable)
 	bool ApplyHealth(AActor* InstigatorActor, float Amount = 100.f);
 
@@ -31,11 +30,16 @@ public:
 
 protected:
 
+	// Widget
 	UTioWorldUserWidget* HealthWidget;
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> HealthWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> SpottedWidgetClass;
+
+	// Component
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UTioAttributeComponent* AttributeComponent;
 
@@ -48,10 +52,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Projectile")
 	FName ParamName_TimeToHit;
 
+	UPROPERTY(VisibleAnywhere, Category = "TargetActor")
+	FName TargetActorKey;
+
 	UFUNCTION()
 	void OnSeePawn(APawn* Pawn);
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastPawnSeen();
+
 	void SetTargetActor(AActor* TargetActor);
+
+	AActor* GetTargetActor() const;
 
 	virtual void PostInitializeComponents() override;
 

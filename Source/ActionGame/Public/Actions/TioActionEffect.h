@@ -4,18 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Actions/TioAction.h"
-#include "TioAction_Effect.generated.h"
+#include "TioActionEffect.generated.h"
 
-/**
- * 
- */
 UCLASS()
-class ACTIONGAME_API UTioAction_Effect : public UTioAction
+class ACTIONGAME_API UTioActionEffect : public UTioAction
 {
 	GENERATED_BODY()
 	
 public:
-	UTioAction_Effect();
+	UTioActionEffect();
 
 	void StartAction_Implementation(AActor* InstigatorActor) override;
 	void StopAction_Implementation(AActor* InstigatorActor) override;

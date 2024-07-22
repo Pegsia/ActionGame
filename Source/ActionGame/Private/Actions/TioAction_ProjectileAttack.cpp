@@ -9,7 +9,8 @@ UTioAction_ProjectileAttack::UTioAction_ProjectileAttack()
 {
 	AttackAnimDelay = 0.16f;
 	SocketName = "Muzzle_01"; 
-	TraceDistance = 1000.f;
+	TraceDistance = 5000.f;
+	SweepRadius = 20.f;
 }
 
 void UTioAction_ProjectileAttack::StartAction_Implementation(AActor* InstigatorActor)
@@ -19,14 +20,16 @@ void UTioAction_ProjectileAttack::StartAction_Implementation(AActor* InstigatorA
 	ACharacter* Character = Cast<ACharacter>(InstigatorActor);
 	if (Character)
 	{
-		FTimerHandle TimeHandle_PrimaryAttack;
-		FTimerDelegate Delegate;
-
-		Delegate.BindUFunction(this, "PrimaryAttack_TimeElapsed", Character);
-		GetWorld()->GetTimerManager().SetTimer(TimeHandle_PrimaryAttack, Delegate, AttackAnimDelay, false);
-
 		Character->PlayAnimMontage(AttackAnim);
 		UGameplayStatics::SpawnEmitterAttached(CastingEffect, Character->GetMesh(), SocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
+
+		if (InstigatorActor->HasAuthority())
+		{
+			FTimerHandle TimeHandle_PrimaryAttack;
+			FTimerDelegate Delegate;
+			Delegate.BindUFunction(this, "PrimaryAttack_TimeElapsed", Character);
+			GetWorld()->GetTimerManager().SetTimer(TimeHandle_PrimaryAttack, Delegate, AttackAnimDelay, false);
+		}
 	}
 }
 
@@ -35,8 +38,11 @@ void UTioAction_ProjectileAttack::PrimaryAttack_TimeElapsed(ACharacter* Instigat
 	if (ensureAlways(ProjectileClass))
 	{
 		FHitResult Hit;
-		FVector TraceStart = InstigatorCharacter->GetPawnViewLocation() + InstigatorCharacter->GetViewRotation().Vector() * 400.f;
-		FVector TraceEnd = TraceStart + InstigatorCharacter->GetControlRotation().Vector() * TraceDistance; //距离过小还是会偏移，因为没有hit结果
+		FVector TraceDirection = InstigatorCharacter->GetControlRotation().Vector();
+		FVector TraceStart = InstigatorCharacter->GetPawnViewLocation() + (TraceDirection * SweepRadius);
+		FVector TraceEnd = TraceStart + TraceDirection * TraceDistance; //距离过小还是会偏移，因为没有hit结果
+
+		FVector AdjustedTraceEnd = TraceEnd;
 
 		FCollisionObjectQueryParams HitObjectQueryParams;
 		HitObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
@@ -44,7 +50,7 @@ void UTioAction_ProjectileAttack::PrimaryAttack_TimeElapsed(ACharacter* Instigat
 		HitObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
 
 		FCollisionShape Shape;
-		Shape.SetSphere(20.f);
+		Shape.SetSphere(SweepRadius);
 
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(InstigatorCharacter);
@@ -53,7 +59,7 @@ void UTioAction_ProjectileAttack::PrimaryAttack_TimeElapsed(ACharacter* Instigat
 
 		if (bBlockingHit)
 		{
-			TraceEnd = Hit.ImpactPoint;
+			AdjustedTraceEnd = Hit.ImpactPoint;
 		}
 		/*DrawDebugSphere(GetWorld(), TraceStart, 30.f, 16, FColor::Yellow, false, 10.f, 0, 5.f);
 		DrawDebugSphere(GetWorld(), TraceEnd, 30.f, 16, FColor::Blue, false, 10.f, 0, 5.f);*/
@@ -61,7 +67,7 @@ void UTioAction_ProjectileAttack::PrimaryAttack_TimeElapsed(ACharacter* Instigat
 		// 生成
 		FVector HandLocation = InstigatorCharacter->GetMesh()->GetSocketLocation(SocketName);
 		// 生成起点和LineTrace起点不同
-		FRotator ProRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
+		FRotator ProRotation = FRotationMatrix::MakeFromX(AdjustedTraceEnd - HandLocation).Rotator();
 		FTransform SpawnTM = FTransform(ProRotation, HandLocation);
 
 		// TODO: SetRotation

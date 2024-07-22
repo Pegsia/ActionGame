@@ -3,12 +3,19 @@
 
 #include "TioAction.h"
 #include "TioActionComponent.h"
+#include "../ActionGame.h"
+#include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogAction, All, All);
 
 UTioAction::UTioAction()
 {
 	bAutoStart = false;
+}
+
+void UTioAction::Initialize(UTioActionComponent* NewActionComponent)
+{
+	ActionComponent = NewActionComponent;
 }
 
 bool UTioAction::CanStart_Implementation(AActor* InstigatorActor)
@@ -31,7 +38,8 @@ bool UTioAction::CanStart_Implementation(AActor* InstigatorActor)
 
 void UTioAction::StartAction_Implementation(AActor* InstigatorActor)
 {
-	UE_LOG(LogAction, Log, TEXT("Start Action %s"), *GetNameSafe(this));
+	//UE_LOG(LogAction, Log, TEXT("Start Action %s"), *GetNameSafe(this));
+	//LogOnScreen(this, FString::Printf(TEXT("Started: %s"), *ActionName.ToString()), FColor::Green);
 
 	UTioActionComponent* OwningComp = GetOwningComponent();
 	OwningComp->ActiveGameplayTags.AppendTags(GrantsTags);
@@ -41,9 +49,10 @@ void UTioAction::StartAction_Implementation(AActor* InstigatorActor)
 
 void UTioAction::StopAction_Implementation(AActor* InstigatorActor)
 {
-	UE_LOG(LogAction, Log, TEXT("Stop Action %s"), *GetNameSafe(this));
+	//UE_LOG(LogAction, Log, TEXT("Stop Action %s"), *GetNameSafe(this));
+	//LogOnScreen(this, FString::Printf(TEXT("Stopped: %s"), *ActionName.ToString()), FColor::White);
 
-	ensureAlways(bIsRunning);
+	//ensureAlways(bIsRunning); OnRep之后，StopAction必须是false
 
 	UTioActionComponent* OwningComp = GetOwningComponent();
 	OwningComp->ActiveGameplayTags.RemoveTags(GrantsTags);
@@ -54,10 +63,10 @@ void UTioAction::StopAction_Implementation(AActor* InstigatorActor)
 UWorld* UTioAction::GetWorld() const
 {
 	// set in TioActionComponent.cpp AddAction
-	UActorComponent* OuterComp = GetOwningComponent();
-	if (OuterComp)
+	AActor* Actor = Cast<AActor>(GetOuter());
+	if (Actor)
 	{
-		return OuterComp->GetWorld();
+		return Actor->GetWorld();
 	}
 	return nullptr;
 }
@@ -67,8 +76,32 @@ bool UTioAction::IsRunning() const
 	return bIsRunning;
 }
 
-UTioActionComponent* UTioAction::GetOwningComponent() const
+void UTioAction::OnRep_Running()
 {
-	return Cast<UTioActionComponent>(GetOuter());
+	if (bIsRunning)
+	{
+		StartAction(nullptr);
+	}
+	else
+	{
+		StopAction(nullptr);
+	}
 }
 
+UTioActionComponent* UTioAction::GetOwningComponent() const
+{
+	return ActionComponent;
+}
+
+AActor* UTioAction::GetOwningActor() const
+{
+	return ActionComponent->GetOwner();
+}
+
+void UTioAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UTioAction, bIsRunning);
+	DOREPLIFETIME(UTioAction, ActionComponent);
+}

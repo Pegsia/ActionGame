@@ -13,6 +13,8 @@ class ACTIONGAME_API UTioAction_ProjectileAttack : public UTioAction
 	GENERATED_BODY()
 	
 protected:
+	UPROPERTY(EditAnywhere, Category = "Targeting")
+	float SweepRadius;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<AActor> ProjectileClass;

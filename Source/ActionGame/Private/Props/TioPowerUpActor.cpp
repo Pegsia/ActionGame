@@ -4,6 +4,7 @@
 #include "TioPowerUpActor.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Net/UnrealNetwork.h"
 
 ATioPowerUpActor::ATioPowerUpActor()
 {
@@ -17,7 +18,10 @@ ATioPowerUpActor::ATioPowerUpActor()
 
 	RespawnTime = 10.f;
 	
-	SetReplicates(true);
+	bIsActive = true;
+	// Directly set bool instead of going through SetReplicates(true) within constructor,
+	// Only use SetReplicates() outside constructor
+	bReplicates = true;
 }
 
 void ATioPowerUpActor::Interact_Implementation(APawn* Insgitator)
@@ -37,8 +41,21 @@ void ATioPowerUpActor::ShowPowerUpActor()
 	SetPowerUpState(true);
 }
 
-void ATioPowerUpActor::SetPowerUpState(bool bIsActive)
+void ATioPowerUpActor::SetPowerUpState(bool bNewIsActive)
+{
+	bIsActive = bNewIsActive;
+	OnRep_IsActive();
+}
+
+void ATioPowerUpActor::OnRep_IsActive()
 {
 	SetActorEnableCollision(bIsActive);
 	RootComponent->SetVisibility(bIsActive, true);
+}
+
+void ATioPowerUpActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ATioPowerUpActor, bIsActive);
 }
