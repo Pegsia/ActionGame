@@ -45,10 +45,9 @@ void UTioActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	for (UTioAction* Action : ActionArray)
 	{
 		FColor TextColor = Action->IsRunning() ? FColor::Blue : FColor::White;
-		FString Msg = FString::Printf(TEXT("[%s] Action %s: IsRunning: %s, Outer: %s"),
+		FString Msg = FString::Printf(TEXT("[%s] Action %s: Outer: %s"),
 			*GetNameSafe(GetOwner()),
 			*Action->ActionName.ToString(),
-			Action->IsRunning() ? TEXT("True") : TEXT("False"),
 			*GetNameSafe(Action->GetOuter()));
 		LogOnScreen(this, Msg, TextColor, 0.0f);
 	}

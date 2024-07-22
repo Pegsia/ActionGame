@@ -30,22 +30,28 @@ bool UTioAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float De
 		Delta *= DamageMultiplier;
 	}
 
+	// 允许客户端计算血量变化，但不允许更改，这样可以返回正确的击打以及回复结果
 	float OldHealth = Health;
-	Health = FMath::Clamp(OldHealth + Delta, 0.f, HealthMax);
-	
-	float ActualDelta = Health - OldHealth;
-	if (ActualDelta != 0.0f)
+	float NewHealth = FMath::Clamp(OldHealth + Delta, 0.f, HealthMax);
+	float ActualDelta = NewHealth - OldHealth;
+
+	if (GetOwner()->HasAuthority())
 	{
-		NetMulticastOnHealthChanged(InstigatorActor, Health, ActualDelta);
-	}
-	
-	//Died
-	if (ActualDelta < 0.f && Health == 0.f)
-	{
-		ATioGameModeBase* GM = GetWorld()->GetAuthGameMode<ATioGameModeBase>();
-		if (GM)
+		Health = NewHealth;
+
+		if (ActualDelta != 0.0f)
 		{
-			GM->OnActorKilled(GetOwner(), InstigatorActor);
+			NetMulticastOnHealthChanged(InstigatorActor, Health, ActualDelta);
+		}
+
+		//Died
+		if (ActualDelta < 0.f && Health == 0.f)
+		{
+			ATioGameModeBase* GM = GetWorld()->GetAuthGameMode<ATioGameModeBase>();
+			if (GM)
+			{
+				GM->OnActorKilled(GetOwner(), InstigatorActor);
+			}
 		}
 	}
 

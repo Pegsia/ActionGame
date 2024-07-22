@@ -9,6 +9,19 @@
 
 class UWorld;
 
+USTRUCT()
+struct FActionRapData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	bool bIsRunning;
+
+	UPROPERTY()
+	AActor* InstigatorActor;
+};
+
 UCLASS(Blueprintable)
 class ACTIONGAME_API UTioAction : public UObject
 {
@@ -24,20 +37,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer BlockedTags;
 
-	UPROPERTY(ReplicatedUsing = "OnRep_Running")
-	bool bIsRunning;
+	UPROPERTY(ReplicatedUsing = "OnRep_RepData")
+	FActionRapData RepData;
 
 	UFUNCTION()
-	void OnRep_Running();
+	void OnRep_RepData();
 
 public:
-
 	UTioAction();
 
 	void Initialize(UTioActionComponent* NewActionComponent);
-
-	UPROPERTY(EditDefaultsOnly, Category = "Action")
-	bool bAutoStart;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
 	bool CanStart(AActor* InstigatorActor);
@@ -47,6 +56,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Action")
 	void StopAction(AActor* InstigatorActor);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Action")
+	bool bAutoStart;
 
 	// 类似GameplayTag负责对比名称
 	UPROPERTY(EditDefaultsOnly, Category = "Action")

@@ -62,12 +62,12 @@ void ATioAICharacter::OnHealthChange(AActor* InstigatorActor, UTioAttributeCompo
     {
         if (InstigatorActor != this)
         {
-            SetTargetActor(InstigatorActor);
-			if (ensureAlways(InstigatorActor))
+			if (InstigatorActor->HasAuthority() && InstigatorActor != GetTargetActor())
+            //if (InstigatorActor != GetTargetActor())
 			{
-                if(InstigatorActor->HasAuthority() && InstigatorActor != GetTargetActor())
-				    MulticastPawnSeen();
+				MulticastPawnSeen();
 			}
+            SetTargetActor(InstigatorActor);
         }
 
         if (HealthWidget == nullptr)
