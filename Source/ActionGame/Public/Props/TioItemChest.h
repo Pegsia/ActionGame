@@ -19,16 +19,21 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Interact")
 	float TargetPitch;
 
+	//~ Begin ITioGameplayInterface
+	void OnActorLoaded_Implementation();
 	void Interact_Implementation(APawn* InstigatorPawn);	
-
+	//~ End ITioGameplayInterface
 	ATioItemChest();
 
 protected:
-	UPROPERTY(ReplicatedUsing = "OnRep_LidOpened", BlueprintReadOnly, Category = "Net")
+	UPROPERTY(ReplicatedUsing = "OnRep_LidOpened", BlueprintReadOnly, SaveGame, Category = "Net")
 	bool bLidOpended;
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION()
 	void OnRep_LidOpened();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void ChangeState();
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 	UStaticMeshComponent* BaseMesh;

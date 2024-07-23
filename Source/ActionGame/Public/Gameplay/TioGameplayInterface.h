@@ -18,6 +18,8 @@ class ACTIONGAME_API ITioGameplayInterface
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnActorLoaded();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Interact(APawn* InsgitatorPawn);

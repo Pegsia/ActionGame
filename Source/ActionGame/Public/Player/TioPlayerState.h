@@ -32,4 +32,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Credits")
 	bool RemoveCredits(int32 Delta);
 
+	UFUNCTION(BlueprintNativeEvent)
+	void SavePlayerState(UTioSaveGame* SaveObject);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void LoadPlayerState(UTioSaveGame* SaveObject);
 };

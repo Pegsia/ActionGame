@@ -9,6 +9,11 @@
 #include "TioCharacter.h"
 #include "TioPlayerState.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
+#include "TioSaveGame.h"
+#include "GameFramework/GameStateBase.h"
+#include "TioGameplayInterface.h"
+#include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogGameModeBase, All, All);
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("Tio.SpawnBots"), false, TEXT("Enable Spawn Bots via time"), ECVF_Cheat);
@@ -24,10 +29,21 @@ ATioGameModeBase::ATioGameModeBase()
 	DesiredPowerUpCount = 8;
 	RequiredPowerUpDistance = 100.f;
 
+	// Credits
 	CreditsPerKill = 20;
+
+	// SaveGame
+	SlotName = "SaveGame01";
 
 	PlayerStateClass = ATioPlayerState::StaticClass();
 }
+
+void ATioGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+	LoadSaveGame();
+}
+
 
 void ATioGameModeBase::StartPlay()
 {
@@ -45,6 +61,18 @@ void ATioGameModeBase::StartPlay()
 			QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ATioGameModeBase::OnPowerUpQueryCompleted);
 		}
 	}
+}
+
+void ATioGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+	// Calling Before Super:: so we set variables before 'beginplayingstate' is called in PlayerController (which is where we instantiate UI)
+	ATioPlayerState* PS = NewPlayer->GetPlayerState<ATioPlayerState>();
+	if (PS)
+	{
+		PS->LoadPlayerState(CurrentSaveGame);
+	}
+
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 }
 
 void ATioGameModeBase::SpawnBotElapsed()
@@ -186,7 +214,6 @@ void ATioGameModeBase::RespawnPlayerElapsed(AController* Controller)
 	}
 }
 
-
 void ATioGameModeBase::KillAllBots()
 {
 	for (TActorIterator<ATioAICharacter> It(GetWorld()); It; ++It)
@@ -197,5 +224,86 @@ void ATioGameModeBase::KillAllBots()
 		{
 			AICharacter->ApplyHealth(this);
 		}
+	}
+}
+
+void ATioGameModeBase::WriteSaveGame()
+{
+	for (int32 i = 0; i < GameState->PlayerArray.Num(); ++i)
+	{
+		ATioPlayerState* PS = Cast<ATioPlayerState>(GameState->PlayerArray[i]);
+		if (PS)
+		{
+			PS->SavePlayerState(CurrentSaveGame);
+			break; // Single player game at this time
+		}
+	}
+
+	CurrentSaveGame->SavedActors.Empty();
+	for (FActorIterator It(GetWorld()); It; ++It)
+	{
+		AActor* Actor = *It;
+		if (!Actor->Implements<UTioGameplayInterface>())
+		{
+			continue;
+		}
+
+		FActorSaveData SaveData;
+		SaveData.ActorName = Actor->GetName();
+		SaveData.ActorTransform = Actor->GetTransform();
+
+		// Pass the array to fill with data from Actor
+		FMemoryWriter MemWriter(SaveData.ByteData);
+		// Find only variables with UPROPERTY(SaveGame)
+		FObjectAndNameAsStringProxyArchive Ar(MemWriter, true);
+		// Converts Actor's UPROPERTY(SaveGame) variables into binary array
+		Actor->Serialize(Ar);
+
+		CurrentSaveGame->SavedActors.Add(SaveData);
+	}
+
+	UGameplayStatics::SaveGameToSlot(CurrentSaveGame, SlotName, 0);
+}
+
+void ATioGameModeBase::LoadSaveGame()
+{
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, 0))
+	{
+		CurrentSaveGame = Cast<UTioSaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
+		if (CurrentSaveGame == nullptr)
+		{
+			UE_LOG(LogGameModeBase, Warning, TEXT("Failed to load game from slot"));
+			return;
+		}
+		UE_LOG(LogGameModeBase, Log, TEXT("Game loaded"));
+
+		for (FActorIterator It(GetWorld()); It; ++It)
+		{
+			AActor* Actor = *It;
+			if (!Actor->Implements<UTioGameplayInterface>())
+			{
+				continue;
+			}
+
+			for (FActorSaveData SaveData : CurrentSaveGame->SavedActors)
+			{
+				if (Actor->GetName() == SaveData.ActorName)
+				{
+					Actor->SetActorTransform(SaveData.ActorTransform);
+
+					FMemoryReader MemReader(SaveData.ByteData);
+					FObjectAndNameAsStringProxyArchive Ar(MemReader, true);
+					// Convert binary array back into actor's variables
+					Actor->Serialize(Ar);
+
+					ITioGameplayInterface::Execute_OnActorLoaded(Actor);
+				}
+			}
+		}
+	}
+	else
+	{
+		CurrentSaveGame = Cast<UTioSaveGame>(UGameplayStatics::CreateSaveGameObject(UTioSaveGame::StaticClass()));
+		UE_LOG(LogGameModeBase, Log, TEXT("New SaveGame Created"));
 	}
 }

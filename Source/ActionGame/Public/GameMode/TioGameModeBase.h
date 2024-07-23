@@ -9,6 +9,7 @@
 
 class UEnvQuery;
 class UEnvQueryInstanceBlueprintWrapper;
+class UTioSaveGame;
 
 UCLASS()
 class ACTIONGAME_API ATioGameModeBase : public AGameModeBase
@@ -63,14 +64,28 @@ protected:
 	UFUNCTION()
 	void RespawnPlayerElapsed(AController* Controller);
 
-public:
+	/* Save Game */
+	UPROPERTY()
+	UTioSaveGame* CurrentSaveGame;
 
-	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
+	FString SlotName;
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "SaveGame")
+	void WriteSaveGame();
+
+	void LoadSaveGame();
 
 	UFUNCTION(Exec)
 	void KillAllBots();
 
+	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
+	
 	ATioGameModeBase();
 
+	//~ Begin GameModeBase Interface
+	void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 	virtual void StartPlay() override;
+	void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
+	//~ End GameModeBase Interface
 };

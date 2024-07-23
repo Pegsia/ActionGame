@@ -33,15 +33,27 @@ void ATioItemChest::BeginPlay()
 }
 
 
+void ATioItemChest::OnActorLoaded_Implementation()
+{
+	float NextPitch = bLidOpended ? TargetPitch : 0.0f; // 开始让箱子瞬间变化
+	LidMesh->SetRelativeRotation(FRotator(NextPitch, 0.f, 0.f));
+}
+
 void ATioItemChest::Interact_Implementation(APawn* InstigatorPawn)
 {
 	bLidOpended = !bLidOpended;
 	OnRep_LidOpened();
 }
 
-void ATioItemChest::OnRep_LidOpened_Implementation()
+void ATioItemChest::OnRep_LidOpened()
 {
-	LidMesh->SetRelativeRotation(FRotator(TargetPitch, 0.f, 0.f));
+	ChangeState();
+}
+
+void ATioItemChest::ChangeState_Implementation()
+{
+	//float NextPitch = bLidOpended ? TargetPitch : 0.0f; // 先变化再触发这个函数，所以条件是反着的
+	//LidMesh->SetRelativeRotation(FRotator(NextPitch, 0.f, 0.f));
 }
 
 void ATioItemChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
