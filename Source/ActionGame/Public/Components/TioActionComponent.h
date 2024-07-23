@@ -29,13 +29,16 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	bool StopActionByName(AActor* InstigatorActor, FName ActionName);
-
-	UFUNCTION(Server, Reliable)
-	void ServerStartAction(AActor* InstigatorActor, FName ActionName);
-
+	
 	UTioActionComponent();
 
 protected:
+	UFUNCTION(Server, Reliable)
+	void ServerStartAction(AActor* InstigatorActor, FName ActionName);
+
+	UFUNCTION(Server, Reliable)
+	void ServerStopAction(AActor* InstigatorActor, FName ActionName);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Actions")
 	TArray<TSubclassOf<UTioAction>> DefaultActions;
 

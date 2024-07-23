@@ -60,6 +60,12 @@ void UTioActionComponent::AddAction(AActor* InstigatorActor, TSubclassOf<UTioAct
 	{
 		return;
 	}
+
+	if (!GetOwner()->HasAuthority())
+	{
+		return;
+	}
+
 	// Only on Server
 	UTioAction* NewAction = NewObject<UTioAction>(GetOwner(), ActionClass);
 	if (ensure(NewAction))
@@ -121,12 +127,21 @@ bool UTioActionComponent::StopActionByName(AActor* InstigatorActor, FName Action
 		{
 			if (Action->IsRunning())
 			{
+				if (!GetOwner()->HasAuthority()) // Client
+				{
+					ServerStopAction(InstigatorActor, ActionName);
+				}
 				Action->StopAction(InstigatorActor);
 				return true;
 			}
 		}
 	}
 	return false;
+}
+
+void UTioActionComponent::ServerStopAction_Implementation(AActor* InstigatorActor, FName ActionName)
+{
+	StopActionByName(InstigatorActor, ActionName);
 }
 
 bool UTioActionComponent::ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags)

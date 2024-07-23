@@ -12,13 +12,13 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogGameModeBase, All, All);
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("Tio.SpawnBots"), false, TEXT("Enable Spawn Bots via time"), ECVF_Cheat);
-static TAutoConsoleVariable<bool> CVarDrawInvaildPowerLocation(TEXT("Tio.InvailPowerLocation"), true, TEXT("DrawInvaildPowerLocation"), ECVF_Cheat);
+static TAutoConsoleVariable<bool> CVarDrawInvaildPowerLocation(TEXT("Tio.InvaildPowerLocation"), true, TEXT("DrawInvaildPowerLocation"), ECVF_Cheat);
 
 ATioGameModeBase::ATioGameModeBase()
 {
 	// Bot Spawn
 	SpawnBotInterval = 2.f;
-	RespawnTime = 2.f;
+	RespawnTime = 5.f;
 
 	// Power Up Spawn
 	DesiredPowerUpCount = 8;

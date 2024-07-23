@@ -52,7 +52,7 @@ void ATioMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedComp
 			// 只有造成伤害才会爆炸
 			Explode();
 
-			if (ActionComp && BurnningEffectClass)
+			if (ActionComp && BurnningEffectClass && HasAuthority())
 			{
 				ActionComp->AddAction(GetInstigator(), BurnningEffectClass);
 			}
