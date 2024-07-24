@@ -66,13 +66,18 @@ void UTioAttributeComponent::NetMulticastOnHealthChanged_Implementation(AActor* 
 bool UTioAttributeComponent::ApplyRageChange(AActor* InstigatorActor, float Delta)
 {
 	float OldRage = Rage;
-	Rage = FMath::Clamp(Rage + Delta, 0.f, RageMax);
-	float ActualDelta = Rage - OldRage;
-
-	if (ActualDelta != 0)
+	float NewRage = FMath::Clamp(Rage + Delta, 0.f, RageMax);
+	float ActualDelta = NewRage - OldRage;
+	
+	if (GetOwner()->HasAuthority())
 	{
-		NetMulticastOnRageChanged(InstigatorActor, Rage, ActualDelta);
+		Rage = NewRage;
+		if (ActualDelta != 0)
+		{
+			NetMulticastOnRageChanged(InstigatorActor, Rage, ActualDelta);
+		}
 	}
+	
 	return ActualDelta != 0;
 }
 

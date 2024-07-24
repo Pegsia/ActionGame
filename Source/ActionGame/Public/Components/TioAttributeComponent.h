@@ -59,7 +59,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Rage")
 	float RageMax;
 
-	UFUNCTION(NetMulticast, Unreliable)
+	UFUNCTION(NetMulticast, Reliable)
 	void NetMulticastOnHealthChanged(AActor* InstigatorActor, float NewHealth, float Delta);
 	
 	UFUNCTION(NetMulticast, Unreliable)

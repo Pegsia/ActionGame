@@ -3,6 +3,7 @@
 
 #include "TioPlayerState.h"
 #include "TioSaveGame.h"
+#include "Net/UnrealNetwork.h"
 
 void ATioPlayerState::AddCredits(int32 Delta)
 {
@@ -35,7 +36,9 @@ void ATioPlayerState::LoadPlayerState_Implementation(UTioSaveGame* SaveObject)
 {
 	if (SaveObject)
 	{
-		Credits = SaveObject->Credits;
+		//Credits = SaveObject->Credits;
+		// Makes sure we trigger credits changed event
+		AddCredits(SaveObject->Credits);
 	}
 }
 
@@ -47,7 +50,19 @@ void ATioPlayerState::SavePlayerState_Implementation(UTioSaveGame* SaveObject)
 	}
 }
 
+void ATioPlayerState::OnRep_CreditsChange(int32 OldCredits)
+{
+	OnCreditsChange.Broadcast(this, Credits, Credits - OldCredits);
+}
+
 int32 ATioPlayerState::GetCredits() const
 {
 	return Credits;
+}
+
+void ATioPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ATioPlayerState, Credits);
 }
