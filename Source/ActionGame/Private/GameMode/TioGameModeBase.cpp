@@ -254,8 +254,9 @@ void ATioGameModeBase::WriteSaveGame()
 
 		// Pass the array to fill with data from Actor
 		FMemoryWriter MemWriter(SaveData.ByteData);
-		// Find only variables with UPROPERTY(SaveGame)
 		FObjectAndNameAsStringProxyArchive Ar(MemWriter, true);
+		// Find only variables with UPROPERTY(SaveGame)
+		Ar.ArIsSaveGame = true;
 		// Converts Actor's UPROPERTY(SaveGame) variables into binary array
 		Actor->Serialize(Ar);
 
@@ -293,10 +294,13 @@ void ATioGameModeBase::LoadSaveGame()
 
 					FMemoryReader MemReader(SaveData.ByteData);
 					FObjectAndNameAsStringProxyArchive Ar(MemReader, true);
+					Ar.ArIsSaveGame = true;
 					// Convert binary array back into actor's variables
 					Actor->Serialize(Ar);
 
 					ITioGameplayInterface::Execute_OnActorLoaded(Actor);
+
+					break;
 				}
 			}
 		}

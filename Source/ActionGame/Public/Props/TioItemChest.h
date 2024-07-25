@@ -26,6 +26,9 @@ public:
 	ATioItemChest();
 
 protected:
+	UPROPERTY(BlueprintReadWrite, Category = "Init")
+	bool InitLidmeshState;
+
 	UPROPERTY(ReplicatedUsing = "OnRep_LidOpened", BlueprintReadOnly, SaveGame, Category = "Net")
 	bool bLidOpended;
 

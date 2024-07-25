@@ -92,9 +92,11 @@ void UTioInteractionComponent::FindBestInteractable()
 	}
 	else
 	{
-		if (InteractWidgetInstance)
+		if (InteractWidgetInstance) // @fixme:nullptr问题没有解决
 		{
+			// 怀疑是快速移动，造成Widget回收的时候再次访问，已经不可的问题
 			InteractWidgetInstance->RemoveFromParent();
+			InteractWidgetInstance = nullptr; // 添加
 		}		
 	}
 

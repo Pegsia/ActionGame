@@ -17,24 +17,32 @@ class ACTIONGAME_API ATioPlayerController : public APlayerController
 public:
 	ATioPlayerController();
 	
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> PauseMenuClass;
+
+	UPROPERTY()
+	UUserWidget* PauseMenuInstance;
+
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> MainHUDClass;
 
-protected:
+	UFUNCTION(BlueprintCallable)
+	void TogglePauseMenu();
+
 	UPROPERTY(BlueprintAssignable)
 	FOnPawnChanged OnPawnChanged;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerStateChanged OnPlayerStateChanged;
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void BlueprintBeginPlayingState();
-
 	//~ Begin APlayerController Interface
 	virtual void BeginPlay() override;
 	/* Called when player controller is ready to begin playing, good moment to initialize things like UI which might be too early in BeginPlay
 	(esp. in multiplayer clients where not all data such as PlayerState may have been received yet) */
 	virtual void BeginPlayingState() override;
+	void SetupInputComponent() override;
 	virtual void SetPawn(APawn* InPawn) override;
 	void OnRep_PlayerState() override; // 另一个解决PlayerState的方法
 	//~ End APlayerController Interface

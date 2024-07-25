@@ -14,7 +14,7 @@ void UTioWorldUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaT
 	{
 		RemoveFromParent();
 
-		UE_LOG(LogTemp, Warning, TEXT("AttachActor Is No Longer Valid, removing health bar"));
+		UE_LOG(LogTemp, Warning, TEXT("AttachActor Is No Longer Valid, removing widget"));
 		return;
 	}
 
@@ -32,7 +32,7 @@ void UTioWorldUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaT
 		}
 	}
 
-	if (ParentSizeBox)
+	if (ParentSizeBox) // 有问题，不设置会变为nullptr
 	{
 		ParentSizeBox->SetVisibility(bIsOnScreen ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
 	}

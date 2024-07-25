@@ -38,7 +38,10 @@ void ATioPlayerState::LoadPlayerState_Implementation(UTioSaveGame* SaveObject)
 	{
 		//Credits = SaveObject->Credits;
 		// Makes sure we trigger credits changed event
-		AddCredits(SaveObject->Credits);
+		if (SaveObject->Credits > 0)
+		{
+			AddCredits(SaveObject->Credits);
+		}		
 	}
 }
 
