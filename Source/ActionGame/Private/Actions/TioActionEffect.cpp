@@ -52,3 +52,9 @@ void UTioActionEffect::ExecutePeriodicEffect_Implementation(AActor* InstigatorAc
 		return; // 被击杀后停止活动
 	}
 }
+
+float UTioActionEffect::GetTimeRemaining() const
+{
+	float EndTime = StartTime + Duration;
+	return EndTime - GetWorld()->GetTimeSeconds();
+}

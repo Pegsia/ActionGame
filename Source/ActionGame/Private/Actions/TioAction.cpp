@@ -43,6 +43,8 @@ void UTioAction::StartAction_Implementation(AActor* InstigatorActor)
 
 	UTioActionComponent* OwningComp = GetOwningComponent();
 	OwningComp->ActiveGameplayTags.AppendTags(GrantsTags);
+	OwningComp->OnActionStarted.Broadcast(OwningComp, this); // for EffectSlot_Widget
+	StartTime = GetWorld()->GetTimeSeconds();
 
 	RepData.bIsRunning = true;
 	RepData.InstigatorActor = InstigatorActor;
@@ -57,6 +59,7 @@ void UTioAction::StopAction_Implementation(AActor* InstigatorActor)
 
 	UTioActionComponent* OwningComp = GetOwningComponent();
 	OwningComp->ActiveGameplayTags.RemoveTags(GrantsTags);
+	OwningComp->OnActionStopped.Broadcast(OwningComp, this);
 
 	RepData.bIsRunning = false;
 	RepData.InstigatorActor = InstigatorActor;

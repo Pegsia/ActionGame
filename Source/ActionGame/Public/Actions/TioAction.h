@@ -28,6 +28,8 @@ class ACTIONGAME_API UTioAction : public UObject
 	GENERATED_BODY()
 	
 protected:
+	float StartTime;
+
 	UPROPERTY(Replicated)
 	UTioActionComponent* ActionComponent;
 
@@ -45,6 +47,9 @@ protected:
 
 public:
 	UTioAction();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	UTexture2D* Icon;
 
 	void Initialize(UTioActionComponent* NewActionComponent);
 
