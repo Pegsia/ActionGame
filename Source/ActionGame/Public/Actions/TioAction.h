@@ -28,6 +28,7 @@ class ACTIONGAME_API UTioAction : public UObject
 	GENERATED_BODY()
 	
 protected:
+	UPROPERTY(Replicated)
 	float StartTime;
 
 	UPROPERTY(Replicated)

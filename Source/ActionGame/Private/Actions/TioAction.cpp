@@ -44,7 +44,10 @@ void UTioAction::StartAction_Implementation(AActor* InstigatorActor)
 	UTioActionComponent* OwningComp = GetOwningComponent();
 	OwningComp->ActiveGameplayTags.AppendTags(GrantsTags);
 	OwningComp->OnActionStarted.Broadcast(OwningComp, this); // for EffectSlot_Widget
-	StartTime = GetWorld()->GetTimeSeconds();
+	if (GetOwningComponent()->GetOwnerRole() == ROLE_Authority)
+	{
+		StartTime = GetWorld()->GetTimeSeconds();
+	}	
 
 	RepData.bIsRunning = true;
 	RepData.InstigatorActor = InstigatorActor;
@@ -108,5 +111,6 @@ void UTioAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UTioAction, RepData);
+	DOREPLIFETIME(UTioAction, StartTime);
 	DOREPLIFETIME(UTioAction, ActionComponent);
 }

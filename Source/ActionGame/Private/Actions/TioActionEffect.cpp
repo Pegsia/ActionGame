@@ -3,6 +3,7 @@
 
 #include "TioActionEffect.h"
 #include "Components/TioActionComponent.h"
+#include "GameFramework/GameStateBase.h"
 
 UTioActionEffect::UTioActionEffect()
 {
@@ -55,6 +56,11 @@ void UTioActionEffect::ExecutePeriodicEffect_Implementation(AActor* InstigatorAc
 
 float UTioActionEffect::GetTimeRemaining() const
 {
-	float EndTime = StartTime + Duration;
-	return EndTime - GetWorld()->GetTimeSeconds();
+	AGameStateBase* GS = GetWorld()->GetGameState<AGameStateBase>();
+	if (GS)
+	{
+		float EndTime = StartTime + Duration;
+		return EndTime - GS->GetServerWorldTimeSeconds();
+	}
+	return Duration;
 }
