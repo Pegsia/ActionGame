@@ -29,6 +29,8 @@ public class ActionGame : ModuleRules
 			"ActionGame/Public/GameMode",
 			"ActionGame/Public/Widget",
 			"ActionGame/Public/Actions",
+			"ActionGame/Public/Anim",
+
 			"ActionGame/Public/AI",
 			"ActionGame/Public/AI/Character",
 			"ActionGame/Public/AI/Service",

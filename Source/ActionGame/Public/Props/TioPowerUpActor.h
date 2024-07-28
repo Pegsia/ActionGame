@@ -17,7 +17,8 @@ class ACTIONGAME_API ATioPowerUpActor : public AActor, public ITioGameplayInterf
 public:	
 	ATioPowerUpActor();
 
-	void Interact_Implementation(APawn* Insgitator) override;
+	void Interact_Implementation(APawn* InstigatorPawn) override;
+	FText GetInteractText_Implementation(APawn* InstigatorPawn);
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Component")

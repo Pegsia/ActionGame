@@ -24,11 +24,6 @@ ATioPowerUpActor::ATioPowerUpActor()
 	bReplicates = true;
 }
 
-void ATioPowerUpActor::Interact_Implementation(APawn* Insgitator)
-{
-
-}
-
 void ATioPowerUpActor::HideAndCoolDownPowerUp()
 {
 	SetPowerUpState(false);
@@ -51,6 +46,16 @@ void ATioPowerUpActor::OnRep_IsActive()
 {
 	SetActorEnableCollision(bIsActive);
 	RootComponent->SetVisibility(bIsActive, true);
+}
+
+void ATioPowerUpActor::Interact_Implementation(APawn* InstigatorPawn)
+{
+
+}
+
+FText ATioPowerUpActor::GetInteractText_Implementation(APawn* InstigatorPawn)
+{
+	return FText::GetEmpty();
 }
 
 void ATioPowerUpActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

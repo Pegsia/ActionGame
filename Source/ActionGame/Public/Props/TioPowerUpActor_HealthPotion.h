@@ -22,5 +22,6 @@ protected:
 public:
 	ATioPowerUpActor_HealthPotion();
 	
-	void Interact_Implementation(APawn* InsgitatorPawn) override;
+	void Interact_Implementation(APawn* InstigatorPawn) override;
+	FText GetInteractText_Implementation(APawn* InstigatorPawn) override;
 };

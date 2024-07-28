@@ -16,7 +16,7 @@ protected:
 	int32 CreditsAmount;
 
 public:
-	void Interact_Implementation(APawn* Insgitator) override;
+	void Interact_Implementation(APawn* InstigatorPawn) override;
 
 	ATioPowerUpActor_Credits();
 };
